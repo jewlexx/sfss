@@ -201,6 +201,8 @@ fn list_uninstalled(ctx: &impl ScoopContext) -> anyhow::Result<Vec<package::Refe
 
             let reference = manifest::Reference::Name(app_name.to_string()).into_package_ref();
 
+            dbg!(reference.installed(ctx)?);
+
             if !reference.installed(ctx)? {
                 uninstalled.push(reference);
             }
