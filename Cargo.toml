@@ -90,7 +90,7 @@ log = { workspace = true }
 open = "5.1"
 parking_lot = "0.12"
 quork.workspace = true
-ratatui = { version = "0.28", features = ["macros"] }
+ratatui = { version = "0.29", features = ["macros"] }
 rayon.workspace = true
 regex.workspace = true
 semver = "1.0"
