@@ -97,7 +97,7 @@ struct Args {
     #[clap(short, long, global = true, help = "Show more information in outputs")]
     verbose: bool,
 
-    #[clap(short, long, global = true, help = "Enable debug logging")]
+    #[clap(long, global = true, help = "Enable debug logging")]
     debug: bool,
 
     #[clap(
