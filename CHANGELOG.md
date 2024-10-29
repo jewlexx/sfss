@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Minor internal changes to `VTable` struct
 - Change `app` subcommands hooks to use `app` subcommands
 
+### Removed
+
+- Short `-d` flags for debug and dry-run flags
+
 ## [1.14.0] - 2024-06-12
 
 ### Added
