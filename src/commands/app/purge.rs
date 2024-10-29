@@ -24,7 +24,6 @@ pub struct Args {
     assume_yes: bool,
 
     #[clap(
-        short,
         long,
         help = "Print what would be done, but don't actually do anything"
     )]
