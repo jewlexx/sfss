@@ -3678,7 +3678,7 @@ dependencies = [
  "sprinkles-rs",
  "tokio",
  "toml_edit",
- "which 6.0.3",
+ "which",
  "windows",
  "windows-version",
  "winreg",
@@ -3870,7 +3870,7 @@ dependencies = [
  "tokio-util",
  "url",
  "urlencoding",
- "which 7.0.0",
+ "which",
  "windows",
  "winreg",
 ]
@@ -4544,18 +4544,6 @@ checksum = "f6488b90108c040df0fe62fa815cbdee25124641df01814dd7282749234c6112"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "which"
-version = "6.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4ee928febd44d98f2f459a4a79bd4d928591333a494a10a868418ac1b39cf1f"
-dependencies = [
- "either",
- "home",
- "rustix",
- "winsafe",
 ]
 
 [[package]]
