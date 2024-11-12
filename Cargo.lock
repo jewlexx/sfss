@@ -181,7 +181,7 @@ dependencies = [
 [[package]]
 name = "async_vt3"
 version = "0.8.0"
-source = "git+https://github.com/winpax/vt3.git#4a46acb91d9baa9d2a98488874394cbc57c49704"
+source = "git+https://github.com/winpax/vt3.git#fd89e91db90c4df9dab33bd64007106793f9b9bc"
 dependencies = [
  "async-compression",
  "base64",
