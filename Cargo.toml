@@ -100,7 +100,7 @@ sfsu-macros = { version = "0.1.0", path = "./macros" }
 shadow-rs = "0.35"
 sprinkles-rs.workspace = true
 tokio = { version = "1.37", features = ["full"] }
-vt3 = { git = "https://github.com/winpax/vt3.git", version = "0.8", package = "async_vt3" }
+vt3 = "0.7.3"
 which = "7.0"
 windows = { version = "0.58", features = ["Win32_Storage_FileSystem"] }
 windows-version = "0.1"
