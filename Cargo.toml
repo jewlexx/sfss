@@ -7,7 +7,7 @@ publish = false
 version = "1.15.0"
 
 [workspace]
-members = ["macros"]
+members = ["macros", "patches/*"]
 package.authors = ["Juliette Cordor <professional@maybejules.com>"]
 package.homepage = "https://github.com/winpax/sfsu"
 package.license = "MIT OR Apache-2.0"
@@ -118,3 +118,6 @@ shadow-rs = "0.35"
 tokio = { version = "1.37", features = ["full"] }
 toml_edit = "0.22"
 winres = "0.1"
+
+[patch.crates-io]
+instant = { path = "patches/instant" }
