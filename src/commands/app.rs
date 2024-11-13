@@ -1,4 +1,5 @@
 pub mod cat;
+pub mod cleanup;
 #[cfg(feature = "download")]
 pub mod download;
 pub mod home;
@@ -16,6 +17,7 @@ use super::{Command, CommandRunner};
 #[derive(Debug, Clone, Subcommand, Runnable)]
 pub enum Commands {
     Cat(cat::Args),
+    Cleanup(cleanup::Args),
     #[cfg(feature = "download")]
     Download(download::Args),
     Home(home::Args),

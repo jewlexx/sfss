@@ -105,6 +105,8 @@ pub enum Commands {
     #[cfg(not(feature = "v2"))]
     #[command_name = "app cat"]
     Cat(app::cat::Args),
+    #[command_name = "app cleanup"]
+    Cleanup(app::cleanup::Args),
     #[cfg(all(feature = "download", not(feature = "v2")))]
     #[command_name = "app download"]
     Download(app::download::Args),
