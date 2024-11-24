@@ -13,12 +13,19 @@ use sprinkles::{
         models::install,
         reference::{manifest, package},
     },
-    progress::indicatif::{MultiProgress, ProgressBar},
+    progress::{
+        indicatif::{MultiProgress, ProgressBar, ProgressFinish},
+        style,
+    },
     requests::AsyncClient,
     Architecture,
 };
 
-use crate::{abandon, models::status::Info, output::colours::eprintln_yellow};
+use crate::{
+    abandon,
+    models::status::Info,
+    output::colours::{bright_red, eprintln_yellow},
+};
 
 #[derive(Debug, Clone, Parser)]
 /// Download the specified app.
@@ -107,6 +114,14 @@ impl super::Command for Args {
 
         let results = futures::future::try_join_all(threads).await?;
 
+        let pb = if self.no_hash_check {
+            ProgressBar::hidden()
+        } else {
+            ProgressBar::new(results.len() as u64)
+                .with_style(style(None, None))
+                .with_finish(ProgressFinish::WithMessage("✅ Checked all files".into()))
+        };
+
         for result in results {
             let result = result?;
 
@@ -114,12 +129,15 @@ impl super::Command for Args {
                 let actual_hash = result.actual_hash.no_prefix();
 
                 if result.actual_hash == result.computed_hash {
-                    eprintln!("\r🔒 Hash matched: {actual_hash}");
+                    pb.tick();
                 } else {
                     eprintln!();
-                    abandon!(
-                        "🔓 Hash mismatch: expected {actual_hash}, found {}",
-                        result.computed_hash.no_prefix()
+                    pb.println(
+                        bright_red!(
+                            "🔓 Hash mismatch: expected {actual_hash}, found {}",
+                            result.computed_hash.no_prefix()
+                        )
+                        .to_string(),
                     );
                 }
             }
