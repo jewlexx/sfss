@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed `json` flag from `app download` command
 - Download progress bars now show app name instead of url leaf
+- Download hash checks now report to a progress bar rather than a print message for each
 
 ## [1.15.0] - 2024-03-11
 
