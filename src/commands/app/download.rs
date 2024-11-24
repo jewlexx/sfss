@@ -111,8 +111,6 @@ impl super::Command for Args {
             let result = result?;
 
             if !self.no_hash_check {
-                eprint!("🔓 Checking {} hash...", result.file_name.url);
-
                 let actual_hash = result.actual_hash.no_prefix();
 
                 if result.actual_hash == result.computed_hash {
@@ -124,13 +122,7 @@ impl super::Command for Args {
                         result.computed_hash.no_prefix()
                     );
                 }
-                // } else {
-                //     eprintln!();
-                //     warn!("🔓 No hash provided, skipping hash check");
-                // }
             }
-
-            eprintln!("✅ Downloaded {}", result.file_name.url);
         }
 
         Ok(())
