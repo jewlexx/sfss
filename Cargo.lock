@@ -3936,8 +3936,9 @@ checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
 
 [[package]]
 name = "sprinkles-rs"
-version = "0.17.0"
-source = "git+https://github.com/winpax/sprinkles.git?branch=named-downloads#88e723b47a0b13aa0ffc915a40ef17ba1ea7f84d"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac08abee9fceac0c0621e18ed1024d942feea4ecaa496ef48ad8d167210bb030"
 dependencies = [
  "base64",
  "blake3",
