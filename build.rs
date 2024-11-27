@@ -249,7 +249,7 @@ fn append_shadow_hooks(mut file: &File) -> shadow_rs::SdResult<()> {
         }
     };
 
-    writeln!(file, "pub mod sfsu_contributors {{\n{sfsu_contribs}\n}}")?;
+    writeln!(file, "pub mod sfsu {{\n{sfsu_contribs}\n}}")?;
 
     let sprinkles_contribs = {
         let contributors = get_contributors(("winpax", "sprinkles"));
@@ -263,10 +263,7 @@ fn append_shadow_hooks(mut file: &File) -> shadow_rs::SdResult<()> {
         }
     };
 
-    writeln!(
-        file,
-        "pub mod sprinkles_contributors {{\n{sprinkles_contribs}\n}}"
-    )?;
+    writeln!(file, "pub mod sprinkles {{\n{sprinkles_contribs}\n}}")?;
 
     let lockfile = LOCKFILE.parse::<DocumentMut>().unwrap();
 

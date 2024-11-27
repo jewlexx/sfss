@@ -24,17 +24,7 @@ use ratatui::{
 use serde::Serialize;
 use sprinkles::contexts::ScoopContext;
 
-mod contributors {
-    use crate::shadow::sfsu::CONTRIBUTORS;
-
-    pub mod sprinkles {
-        use crate::shadow::sprinkles::CONTRIBUTORS;
-    }
-}
-
-mod packages {
-    use crate::shadow::PACKAGES;
-}
+use crate::shadow;
 
 mod titles {
     use shadow_rs::formatcp;
@@ -49,7 +39,7 @@ mod titles {
     pub const SPRINKLES_CONTRIBUTORS: &str = "🍨 And in sprinkles 🍨";
     pub const PACKAGES: &str = formatcp!(
         "📦 And all the incredible {} crates we use 📦",
-        super::packages::PACKAGES.len()
+        crate::shadow::PACKAGES.len()
     );
 }
 
@@ -145,18 +135,18 @@ impl super::Command for Args {
                 version: &'a str,
             }
 
-            let contributors = contributors::CONTRIBUTORS
+            let contributors = shadow::sfsu::CONTRIBUTORS
                 .into_iter()
                 .map(|(name, url)| Contributor { name, url })
                 .collect_vec();
 
-            let sprinkles_contributors = contributors::sprinkles::CONTRIBUTORS
+            let sprinkles_contributors = shadow::sprinkles::CONTRIBUTORS
                 .into_iter()
                 .map(|(name, url)| Contributor { name, url })
                 .collect_vec();
 
             let packages = if self.packages {
-                packages::PACKAGES
+                shadow::PACKAGES
                     .into_iter()
                     .map(|(name, version)| Package { name, version })
                     .collect_vec()
@@ -184,7 +174,7 @@ impl super::Command for Args {
             println!("{}", titles::SFSU_CONTRIBUTORS);
             println!();
 
-            for (name, url) in contributors::CONTRIBUTORS {
+            for (name, url) in shadow::sfsu::CONTRIBUTORS {
                 let url = Url::new(name, url.to_string());
                 println!("{url}");
             }
@@ -193,7 +183,7 @@ impl super::Command for Args {
             println!("{}", titles::SPRINKLES_CONTRIBUTORS);
             println!();
 
-            for (name, url) in contributors::sprinkles::CONTRIBUTORS {
+            for (name, url) in shadow::sprinkles::CONTRIBUTORS {
                 let url = Url::new(name, url.to_string());
                 println!("{url}");
             }
@@ -203,7 +193,7 @@ impl super::Command for Args {
                 println!("{}", titles::PACKAGES);
                 println!();
 
-                for (name, version) in packages::PACKAGES {
+                for (name, version) in shadow::PACKAGES {
                     let url = Url::new(name, format!("https://crates.io/crates/{name}"));
                     println!("{url}: {version}");
                 }
@@ -240,7 +230,7 @@ impl Args {
         ]);
 
         items.extend(
-            contributors::CONTRIBUTORS
+            shadow::sfsu::CONTRIBUTORS
                 .into_iter()
                 .map(|(name, url)| Text::from(format!("{name} ({url})"))),
         );
@@ -252,7 +242,7 @@ impl Args {
         ]);
 
         items.extend(
-            contributors::sprinkles::CONTRIBUTORS
+            shadow::sprinkles::CONTRIBUTORS
                 .into_iter()
                 .map(|(name, url)| Text::from(format!("{name} ({url})"))),
         );
@@ -264,7 +254,7 @@ impl Args {
                 Text::raw(""),
             ]);
 
-            items.extend(packages::PACKAGES.into_iter().map(|(name, version)| {
+            items.extend(shadow::PACKAGES.into_iter().map(|(name, version)| {
                 Text::from(Line::from(vec![
                     Span::styled(name, Style::default()),
                     Span::raw(" - "),
