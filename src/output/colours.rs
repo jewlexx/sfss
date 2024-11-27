@@ -1,3 +1,3 @@
 #![allow(unused_imports)]
 
-include!(concat!(env!("OUT_DIR"), "/colours.rs"));
+pub use crate::shadow::colours::*;
