@@ -4,17 +4,17 @@ use sprinkles::packages::reference::package;
 
 use crate::output::colours::{bright_red, green, yellow};
 
-pub type ListApps<C> = Box<dyn Fn(&C) -> anyhow::Result<Option<Vec<package::Reference>>>>;
+pub trait ListApps<C: ?Sized> = Fn(&C) -> anyhow::Result<Option<Vec<package::Reference>>>;
 
-pub struct AppsDecider<'c, C: ?Sized> {
+pub struct AppsDecider<'c, C: ?Sized, F: ListApps<C>> {
     ctx: &'c C,
-    all: ListApps<C>,
+    all: F,
     provided: Vec<package::Reference>,
     collections: CollectionNames,
 }
 
-impl<'c, C: ?Sized> AppsDecider<'c, C> {
-    pub fn new(ctx: &'c C, all: ListApps<C>, provided: Vec<package::Reference>) -> Self {
+impl<'c, C: ?Sized, F: ListApps<C>> AppsDecider<'c, C, F> {
+    pub fn new(ctx: &'c C, all: F, provided: Vec<package::Reference>) -> Self {
         Self {
             ctx,
             all,

@@ -4,6 +4,7 @@
     rust_2018_idioms,
     rust_2024_compatibility
 )]
+#![feature(trait_alias)]
 
 // TODO: Replace regex with glob
 
