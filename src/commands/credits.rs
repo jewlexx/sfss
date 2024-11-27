@@ -25,15 +25,15 @@ use serde::Serialize;
 use sprinkles::contexts::ScoopContext;
 
 mod contributors {
-    include!(concat!(env!("OUT_DIR"), "/contributors.rs"));
+    use crate::shadow::sfsu::CONTRIBUTORS;
 
     pub mod sprinkles {
-        include!(concat!(env!("OUT_DIR"), "/sprinkles_contributors.rs"));
+        use crate::shadow::sprinkles::CONTRIBUTORS;
     }
 }
 
 mod packages {
-    include!(concat!(env!("OUT_DIR"), "/packages.rs"));
+    use crate::shadow::PACKAGES;
 }
 
 mod titles {

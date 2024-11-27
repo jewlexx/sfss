@@ -272,5 +272,5 @@ fn append_shadow_hooks(mut file: &File) -> shadow_rs::SdResult<()> {
 
     writeln!(file, "{}", get_packages(&lockfile))?;
 
-    unimplemented!()
+    Ok(())
 }

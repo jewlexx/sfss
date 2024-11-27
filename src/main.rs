@@ -31,17 +31,20 @@ use sprinkles::contexts::{AnyContext, User};
 #[cfg(feature = "contexts")]
 use sprinkles::contexts::Global;
 
+mod shadow {
+    include!(concat!(env!("OUT_DIR"), "/shadow.rs"));
+}
+
 mod versions {
     #![allow(clippy::needless_raw_string_hashes)]
 
     use konst::eq_str;
 
-    pub mod shadow {
-        include!(concat!(env!("OUT_DIR"), "/shadow.rs"));
-    }
-
     // TODO: Move this into build script
     pub const SFSU_LONG_VERSION: &str = {
+        use crate::shadow::{
+            BRANCH, BUILD_TIME, PKG_VERSION, RUST_CHANNEL, RUST_VERSION, SHORT_COMMIT, TAG,
+        };
         use shadow_rs::formatcp;
 
         const LIBGIT2_VERSION: &str = env!("LIBGIT2_VERSION");
