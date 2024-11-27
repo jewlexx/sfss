@@ -97,7 +97,11 @@ fn criterion_benchmark(c: &mut Criterion) {
             },
             |dl| async {
                 let dl = dl.await;
-                black_box(DownloadHandle::new::<AsyncClient>(dl, None).await.unwrap())
+                black_box(
+                    DownloadHandle::new::<AsyncClient>(dl, None, None)
+                        .await
+                        .unwrap(),
+                )
             },
             BatchSize::SmallInput,
         );
