@@ -5,8 +5,8 @@ use sprinkles::{
 };
 
 use crate::{
+    abandon,
     handlers::{AppsDecider, ListApps},
-    output::colours::eprintln_yellow,
 };
 
 #[derive(Debug, Clone, Parser)]
@@ -30,14 +30,9 @@ pub struct Args {
 
 impl super::Command for Args {
     async fn runner(self, ctx: &impl ScoopContext) -> anyhow::Result<()> {
-        let cleanup_apps = match AppsDecider::new(ctx, self.list_apps(), self.apps)
-            .decide()?
-            .as_deref()
-        {
-            Some([]) | None => {
-                eprintln_yellow!("No apps selected. Exiting now.");
-                return Ok(());
-            }
+        let cleanup_apps = match AppsDecider::new(ctx, self.list_apps(), self.apps).decide()? {
+            Some(apps) if apps.is_empty() => abandon!("No apps selected"),
+            None => abandon!("No apps selected"),
             Some(apps) => apps,
         };
 
