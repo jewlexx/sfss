@@ -36,8 +36,11 @@ mod versions {
 
     use konst::eq_str;
 
-    include!(concat!(env!("OUT_DIR"), "/shadow.rs"));
+    pub mod shadow {
+        include!(concat!(env!("OUT_DIR"), "/shadow.rs"));
+    }
 
+    // TODO: Move this into build script
     pub const SFSU_LONG_VERSION: &str = {
         use shadow_rs::formatcp;
 

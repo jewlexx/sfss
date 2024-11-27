@@ -1,4 +1,4 @@
-use std::{error::Error, io::Write};
+use std::{error::Error, fs::File, io::Write};
 
 use contribs::contributors::Contributors;
 use dotenv::dotenv;
@@ -210,33 +210,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     SprinklesVersion::from_doc(&lockfile).print_variables();
 
-    shadow_rs::new()?;
-
-    std::fs::write(out_path.clone() + "/contributors.rs", {
-        let contributors = get_contributors(("winpax", "sfsu"));
-
-        match contributors {
-            Ok(contributors) => contributors,
-            Err(e) if std::env::var("IS_RELEASE").is_ok_and(|v| v == "true") => {
-                panic!("Getting contributors failed with error: {e}");
-            }
-            _ => "pub const CONTRIBUTORS: [(&str, &str); 0] = [];".to_string(),
-        }
-    })?;
-
-    std::fs::write(out_path.clone() + "/sprinkles_contributors.rs", {
-        let contributors = get_contributors(("winpax", "sprinkles"));
-
-        match contributors {
-            Ok(contributors) => contributors,
-            Err(e) if std::env::var("IS_RELEASE").is_ok_and(|v| v == "true") => {
-                panic!("Getting contributors failed with error: {e}");
-            }
-            _ => "pub const CONTRIBUTORS: [(&str, &str); 0] = [];".to_string(),
-        }
-    })?;
-
-    std::fs::write(out_path.clone() + "/packages.rs", get_packages(&lockfile))?;
+    shadow_rs::new_hook(append_shadow_hooks)?;
 
     let mut colours_file = std::fs::File::create(out_path.clone() + "/colours.rs")?;
     write_colours(&mut colours_file)?;
@@ -260,4 +234,43 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     Ok(())
+}
+
+fn append_shadow_hooks(mut file: &File) -> shadow_rs::SdResult<()> {
+    let sfsu_contribs = {
+        let contributors = get_contributors(("winpax", "sfsu"));
+
+        match contributors {
+            Ok(contributors) => contributors,
+            Err(e) if std::env::var("IS_RELEASE").is_ok_and(|v| v == "true") => {
+                panic!("Getting contributors failed with error: {e}");
+            }
+            _ => "pub const CONTRIBUTORS: [(&str, &str); 0] = [];".to_string(),
+        }
+    };
+
+    writeln!(file, "pub mod sfsu_contributors {{\n{sfsu_contribs}\n}}")?;
+
+    let sprinkles_contribs = {
+        let contributors = get_contributors(("winpax", "sprinkles"));
+
+        match contributors {
+            Ok(contributors) => contributors,
+            Err(e) if std::env::var("IS_RELEASE").is_ok_and(|v| v == "true") => {
+                panic!("Getting contributors failed with error: {e}");
+            }
+            _ => "pub const CONTRIBUTORS: [(&str, &str); 0] = [];".to_string(),
+        }
+    };
+
+    writeln!(
+        file,
+        "pub mod sprinkles_contributors {{\n{sprinkles_contribs}\n}}"
+    )?;
+
+    let lockfile = LOCKFILE.parse::<DocumentMut>().unwrap();
+
+    writeln!(file, "{}", get_packages(&lockfile))?;
+
+    unimplemented!()
 }
