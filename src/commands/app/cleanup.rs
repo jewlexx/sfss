@@ -10,6 +10,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, Parser)]
+#[allow(clippy::struct_excessive_bools)]
 /// Cleanup apps by removing old versions
 pub struct Args {
     #[clap(help = "The app(s) to cleanup")]
@@ -17,6 +18,13 @@ pub struct Args {
 
     #[clap(short, long, help = "Cleanup all installed apps")]
     all: bool,
+
+    #[clap(
+        short = 'k',
+        long,
+        help = "Cleanup old versions of the app from the cache"
+    )]
+    cache: bool,
 
     #[clap(from_global)]
     assume_yes: bool,
@@ -68,5 +76,14 @@ impl Args {
                 anyhow::Ok(None)
             }
         }
+    }
+
+    fn cleanup_app(&self, ctx: &impl ScoopContext, app: &package::Reference) -> anyhow::Result<()> {
+        /**
+         *     if ($cache) {
+            Remove-Item "$cachedir\$app#*" -Exclude "$app#$current_version#*"
+        }
+         */
+        unimplemented!()
     }
 }
