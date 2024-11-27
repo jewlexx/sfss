@@ -266,7 +266,7 @@ fn append_shadow_hooks(mut file: &File) -> shadow_rs::SdResult<()> {
 
     writeln!(file, "pub mod sprinkles {{\n{sprinkles_contribs}\n}}")?;
 
-    let lockfile = LOCKFILE.parse::<DocumentMut>().unwrap();
+    let lockfile = LOCKFILE.parse::<DocumentMut>().expect("Failed to parse Cargo.lock");
 
     writeln!(file, "{}", get_packages(&lockfile))?;
 
