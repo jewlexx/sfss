@@ -220,10 +220,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut res = winres::WindowsResource::new();
     res.set_manifest(WIN_MANIFEST);
 
-    if let Err(error) = res.compile() {
-        eprint!("{error}");
-        std::process::exit(1);
-    }
+    res.compile().expect("Failed to compile Windows resources");
 
     let libgit2_version = git2::Version::get();
 
