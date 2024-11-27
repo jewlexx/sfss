@@ -32,9 +32,6 @@ jobs:
   clippy:
     name: Clippy
     runs-on: windows-latest
-    permissions:
-      contents: read
-      security-events: write
     steps:
       - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2.7.3
@@ -44,13 +41,9 @@ jobs:
         with:
           components: clippy
 
-      - name: Install required crates
-        run: cargo install clippy-sarif sarif-fmt
-
       - name: Run rust-clippy
         run: cargo clippy --all-features
         continue-on-error: true
-
 
   format:
     name: Formatting
