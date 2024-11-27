@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use sprinkles::packages::reference::package;
 
 use crate::output::colours::{bright_red, green, yellow};
@@ -34,43 +36,56 @@ impl<'c, C: ?Sized> AppsDecider<'c, C> {
         };
 
         if self.provided.is_empty() {
-            Ok(Some(installed_apps))
-        } else {
-            let choices = [
-                (
-                    bright_red!("All installed apps - {}", installed_apps.len()).to_string(),
-                    installed_apps,
-                ),
-                (
-                    green!(
-                        "Provided apps - {} (see command invocation)",
-                        self.provided.len()
-                    )
-                    .to_string(),
-                    self.provided,
-                ),
-            ];
-
-            let Some( choice_index) = dialoguer::Select::new()
-                .with_prompt(yellow!("You have provided apps, but also selected to cleanup all installed apps. Which collection would you like to cleanup?").to_string())
-                .items(&[&choices[0].0, &choices[1].0])
-                .default(1)
-                .interact_opt()
-                .map_err(|dialoguer::Error::IO(error)| error)? else {
-                    return Ok(None);
-                };
-
-            let (_, apps) = {
-                let mut choices = choices;
-
-                std::mem::replace(
-                    &mut choices[choice_index],
-                    const { (String::new(), Vec::new()) },
-                )
-            };
-
-            Ok(Some(apps))
+            return Ok(Some(installed_apps));
         }
+
+        let choices = [
+            (
+                bright_red!(
+                    "{} - {}",
+                    upper_first_char(self.collections.all),
+                    installed_apps.len()
+                )
+                .to_string(),
+                installed_apps,
+            ),
+            (
+                green!(
+                    "{} - {} (see command invocation)",
+                    upper_first_char(self.collections.provided),
+                    self.provided.len()
+                )
+                .to_string(),
+                self.provided,
+            ),
+        ];
+
+        let prompt = yellow!(
+            "You have {provided}, but also selected {all}. Which collection would you like to choose?",
+            provided = self.collections.provided,
+            all = self.collections.all,
+        ).to_string();
+
+        let Some(choice_index) = dialoguer::Select::new()
+            .with_prompt(prompt)
+            .items(&[&choices[0].0, &choices[1].0])
+            .default(1)
+            .interact_opt()
+            .map_err(|dialoguer::Error::IO(error)| error)?
+        else {
+            return Ok(None);
+        };
+
+        let (_, apps) = {
+            let mut choices = choices;
+
+            std::mem::replace(
+                &mut choices[choice_index],
+                const { (String::new(), Vec::new()) },
+            )
+        };
+
+        Ok(Some(apps))
     }
 }
 
@@ -83,8 +98,19 @@ pub struct CollectionNames {
 impl Default for CollectionNames {
     fn default() -> Self {
         Self {
-            all: "All installed apps",
-            provided: "Provided apps",
+            all: "all installed apps",
+            provided: "provided apps",
         }
+    }
+}
+
+fn upper_first_char(s: &str) -> Cow<'_, str> {
+    let mut chars = s.chars();
+    let first = chars.next().unwrap();
+
+    if first.is_lowercase() {
+        Cow::Owned(format!("{}{}", first.to_uppercase(), chars.as_str()))
+    } else {
+        Cow::Borrowed(s)
     }
 }
