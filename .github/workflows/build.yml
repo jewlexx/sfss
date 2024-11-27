@@ -53,6 +53,14 @@ jobs:
           --message-format=json | clippy-sarif | tee rust-clippy-results.sarif | sarif-fmt
         continue-on-error: true
 
+        # nah cause WHAT THE FUCK IS GOING ON WHY SIONT THIS SFUCKIRGNREOIJFEROIFGJHEILYHBURTHBIU;ERFGJOIHUEGRFJPOIK
+      - uses: actions/upload-artifact@v4
+        name: Upload Clippy results as artifact for debugging
+        with:
+          name: clippy-results
+          path: rust-clippy-results.sarif
+          overwrite: true
+
       - name: Upload analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v3
         with:
