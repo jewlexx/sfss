@@ -205,12 +205,10 @@ impl super::Command for Args {
             )
         };
 
-        let matching_buckets: Vec<Bucket> =
-            if let Some(Ok(bucket)) = bucket.map(|name| Bucket::from_name(ctx, name)) {
-                vec![bucket]
-            } else {
-                Bucket::list_all(ctx)?
-            };
+        let matching_buckets: Vec<Bucket> = match bucket.map(|name| Bucket::from_name(ctx, name)) {
+            Some(Ok(bucket)) => vec![bucket],
+            _ => Bucket::list_all(ctx)?,
+        };
 
         let mut matches: Sections<_> = matching_buckets
             .par_iter()

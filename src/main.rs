@@ -4,6 +4,7 @@
     rust_2018_idioms,
     rust_2024_compatibility
 )]
+#![allow(clippy::single_match_else)]
 #![feature(trait_alias)]
 
 // TODO: Replace regex with glob
