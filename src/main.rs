@@ -31,9 +31,7 @@ use sprinkles::contexts::{AnyContext, User};
 #[cfg(feature = "contexts")]
 use sprinkles::contexts::Global;
 
-mod shadow {
-    include!(concat!(env!("OUT_DIR"), "/shadow.rs"));
-}
+shadow_rs::shadow!(shadow);
 
 mod versions {
     #![allow(clippy::needless_raw_string_hashes)]
