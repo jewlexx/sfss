@@ -234,7 +234,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn append_shadow_hooks(mut file: &File) -> shadow_rs::SdResult<()> {
+fn append_shadow_hooks(file: &mut File) -> shadow_rs::SdResult<()> {
     let sfsu_contribs = {
         let contributors = get_contributors(("winpax", "sfsu"));
 
