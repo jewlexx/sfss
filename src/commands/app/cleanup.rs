@@ -4,7 +4,10 @@ use sprinkles::{
     packages::reference::{manifest, package},
 };
 
-use crate::{handlers::AppsDecider, output::colours::eprintln_yellow};
+use crate::{
+    handlers::{AppsDecider, ListApps},
+    output::colours::eprintln_yellow,
+};
 
 #[derive(Debug, Clone, Parser)]
 /// Cleanup apps by removing old versions
@@ -43,9 +46,7 @@ impl super::Command for Args {
 }
 
 impl Args {
-    fn list_apps<C: ScoopContext>(
-        &self,
-    ) -> Box<dyn Fn(&C) -> anyhow::Result<Option<Vec<package::Reference>>>> {
+    fn list_apps<C: ScoopContext>(&self) -> ListApps<C> {
         let all = self.all;
         Box::new(move |ctx: &C| {
             if all {

@@ -4,7 +4,7 @@ use sprinkles::packages::reference::package;
 
 use crate::output::colours::{bright_red, green, yellow};
 
-type ListApps<C> = Box<dyn Fn(&C) -> anyhow::Result<Option<Vec<package::Reference>>>>;
+pub type ListApps<C> = Box<dyn Fn(&C) -> anyhow::Result<Option<Vec<package::Reference>>>>;
 
 pub struct AppsDecider<'c, C: ?Sized> {
     ctx: &'c C,
