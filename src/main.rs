@@ -4,7 +4,12 @@
     rust_2018_idioms,
     rust_2024_compatibility
 )]
+// Allow using single match instead of if let
+// This allows us to circumvent the lifetime changes coming in rust 2024
 #![allow(clippy::single_match_else)]
+// Ignore this lint for now. Cases are not an issue,
+// and it cannot be disabled for a single line AFAIK
+#![allow(tail_expr_drop_order)]
 #![feature(trait_alias)]
 
 // TODO: Replace regex with glob
