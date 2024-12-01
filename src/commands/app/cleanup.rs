@@ -78,7 +78,24 @@ impl Args {
         }
     }
 
-    fn cleanup_app(&self, ctx: &impl ScoopContext, app: &package::Reference) -> anyhow::Result<()> {
+    async fn cleanup_app(
+        &self,
+        ctx: &impl ScoopContext,
+        app: &package::Reference,
+    ) -> anyhow::Result<()> {
+        let app_handle = app.clone().open_handle(ctx);
+
+        let current_version = app_handle
+            .await?
+            .local_manifest()
+            .map(|manifest| manifest.version)?;
+
+        if self.cache {
+            let cache_path = ctx.cache_path();
+
+            while let Some(entry) = tokio::fs::read_dir(cache_path).await?.next_entry().await? {}
+        }
+
         /**
          *     if ($cache) {
             Remove-Item "$cachedir\$app#*" -Exclude "$app#$current_version#*"
