@@ -15,6 +15,7 @@ mod limits;
 mod logging;
 mod models;
 mod output;
+mod validations;
 mod wrappers;
 
 use std::{
@@ -26,10 +27,11 @@ use clap::Parser;
 
 use commands::Commands;
 use logging::Logger;
-use sprinkles::contexts::{AnyContext, User};
+use sprinkles::contexts::{AnyContext, ScoopContext, User};
 
 #[cfg(feature = "contexts")]
 use sprinkles::contexts::Global;
+use validations::Validate;
 
 shadow_rs::shadow!(shadow);
 
@@ -170,6 +172,8 @@ async fn main() -> anyhow::Result<()> {
         console::set_colors_enabled_stderr(false);
         COLOR_ENABLED.store(false, Ordering::Relaxed);
     }
+
+    ctx.config().validate()?;
 
     debug!("Running command: {:?}", args.command);
 
