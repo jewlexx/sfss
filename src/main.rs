@@ -20,7 +20,6 @@ mod diagnostics;
 mod errors;
 mod handlers;
 mod limits;
-mod lists;
 mod logging;
 mod models;
 mod output;

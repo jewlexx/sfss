@@ -93,7 +93,7 @@ impl Args {
         if self.cache {
             let cache_path = ctx.cache_path();
 
-            while let Some(entry) = tokio::fs::read_dir(cache_path).await?.next_entry().await? {}
+            while let Some(entry) = tokio::fs::read_dir(&cache_path).await?.next_entry().await? {}
         }
 
         /**
