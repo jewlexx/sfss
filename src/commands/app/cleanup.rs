@@ -1,5 +1,5 @@
 use clap::Parser;
-use futures::{stream::FuturesUnordered, TryStreamExt};
+use futures::{stream::FuturesUnordered, TryFutureExt, TryStreamExt};
 use sprinkles::{
     contexts::ScoopContext,
     packages::reference::{manifest, package},
@@ -49,9 +49,20 @@ impl super::Command for Args {
 
         let cleanup_tasks = cleanup_apps
             .iter()
-            .map(|reference| self.cleanup_app(ctx, reference))
+            .map(|reference| {
+                self.cleanup_app(ctx, reference).map_err(|error| {
+                    anyhow::anyhow!(
+                        "Failed to cleanup {}: {error}",
+                        match &reference.manifest {
+                            manifest::Reference::File(path_buf) => path_buf.display().to_string(),
+                            _ => unreachable!(),
+                        }
+                    )
+                })
+            })
             .collect::<FuturesUnordered<_>>()
-            .try_collect::<_>();
+            .try_collect::<Vec<_>>()
+            .await?;
 
         unimplemented!()
     }
@@ -74,8 +85,7 @@ impl Args {
                     });
 
                     let references = manifest_paths
-                        .map(manifest::Reference::File)
-                        .map(manifest::Reference::into_package_ref);
+                        .map(|path| manifest::Reference::File(path).into_package_ref());
 
                     references.collect()
                 };
@@ -94,10 +104,10 @@ impl Args {
     ) -> anyhow::Result<()> {
         let app_handle = app.clone().open_handle(ctx);
 
-        let current_version = app_handle
-            .await?
-            .local_manifest()
-            .map(|manifest| manifest.version)?;
+        let current_version = app_handle.await?.local_manifest().map(|manifest| {
+            debug!("Cleaning up {app}@{}", manifest.version);
+            manifest.version
+        })?;
 
         if self.cache {
             let cache_path = ctx.cache_path();

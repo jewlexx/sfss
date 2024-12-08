@@ -20,7 +20,16 @@ impl Logger {
 
     pub async fn new(ctx: &impl ScoopContext, verbose: bool) -> Self {
         let file = async move {
-            let logs_dir = ctx.logging_dir()?;
+            let logs_dir = if cfg!(debug_assertions) {
+                let dir = std::env::current_dir().unwrap().join("logs");
+                if !dir.exists() {
+                    std::fs::create_dir(&dir).unwrap();
+                }
+
+                dir
+            } else {
+                ctx.logging_dir()?
+            };
             let date = Local::now();
             let log_file = async {
                 let mut i = 0;
