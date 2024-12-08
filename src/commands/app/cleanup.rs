@@ -102,9 +102,9 @@ impl Args {
         ctx: &impl ScoopContext,
         app: &package::Reference,
     ) -> anyhow::Result<()> {
-        let app_handle = app.clone().open_handle(ctx);
+        let app_handle = app.clone().open_handle(ctx).await.unwrap();
 
-        let current_version = app_handle.await?.local_manifest().map(|manifest| {
+        let current_version = app_handle.local_manifest().map(|manifest| {
             debug!("Cleaning up {app}@{}", manifest.version);
             manifest.version
         })?;
