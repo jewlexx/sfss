@@ -1,4 +1,5 @@
 use clap::Parser;
+use futures::{stream::FuturesUnordered, TryStreamExt};
 use sprinkles::{
     contexts::ScoopContext,
     packages::reference::{manifest, package},
@@ -37,12 +38,20 @@ pub struct Args {
 }
 
 impl super::Command for Args {
-    async fn runner(self, ctx: &impl ScoopContext) -> anyhow::Result<()> {
-        let cleanup_apps = match AppsDecider::new(ctx, self.list_apps(), self.apps).decide()? {
+    async fn runner(mut self, ctx: &impl ScoopContext) -> anyhow::Result<()> {
+        let provided_apps = std::mem::take(&mut self.apps);
+
+        let cleanup_apps = match AppsDecider::new(ctx, self.list_apps(), provided_apps).decide()? {
             Some(apps) if apps.is_empty() => abandon!("No apps selected"),
             None => abandon!("No apps selected"),
             Some(apps) => apps,
         };
+
+        let cleanup_tasks = cleanup_apps
+            .iter()
+            .map(|reference| self.cleanup_app(ctx, reference))
+            .collect::<FuturesUnordered<_>>()
+            .try_collect::<_>();
 
         unimplemented!()
     }
@@ -93,7 +102,9 @@ impl Args {
         if self.cache {
             let cache_path = ctx.cache_path();
 
-            while let Some(entry) = tokio::fs::read_dir(&cache_path).await?.next_entry().await? {}
+            while let Some(entry) = tokio::fs::read_dir(&cache_path).await?.next_entry().await? {
+                let path = dbg!(entry.file_name());
+            }
         }
 
         /**
