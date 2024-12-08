@@ -24,6 +24,7 @@ mod lists;
 mod logging;
 mod models;
 mod output;
+mod validations;
 mod wrappers;
 
 use std::{
@@ -35,19 +36,24 @@ use clap::Parser;
 
 use commands::Commands;
 use logging::Logger;
-use sprinkles::contexts::{AnyContext, User};
+use sprinkles::contexts::{AnyContext, ScoopContext, User};
 
 #[cfg(feature = "contexts")]
 use sprinkles::contexts::Global;
+use validations::Validate;
+
+shadow_rs::shadow!(shadow);
 
 mod versions {
     #![allow(clippy::needless_raw_string_hashes)]
 
     use konst::eq_str;
 
-    include!(concat!(env!("OUT_DIR"), "/shadow.rs"));
-
+    // TODO: Move this into build script
     pub const SFSU_LONG_VERSION: &str = {
+        use crate::shadow::{
+            BRANCH, BUILD_TIME, PKG_VERSION, RUST_CHANNEL, RUST_VERSION, SHORT_COMMIT, TAG,
+        };
         use shadow_rs::formatcp;
 
         const LIBGIT2_VERSION: &str = env!("LIBGIT2_VERSION");
@@ -175,6 +181,8 @@ async fn main() -> anyhow::Result<()> {
         console::set_colors_enabled_stderr(false);
         COLOR_ENABLED.store(false, Ordering::Relaxed);
     }
+
+    ctx.config().validate()?;
 
     debug!("Running command: {:?}", args.command);
 
