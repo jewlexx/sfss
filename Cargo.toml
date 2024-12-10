@@ -3,7 +3,7 @@ description = "Stupid Fast Scoop Utils"
 edition = "2021"
 license = { workspace = true }
 name = "sfsu"
-publish = false
+publish = true
 version = "1.15.0"
 
 [workspace]
