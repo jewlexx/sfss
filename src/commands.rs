@@ -17,7 +17,7 @@ mod virustotal;
 
 use clap::Subcommand;
 
-use sfsu_macros::{Hooks, Runnable};
+use sfsu_macros::Hooks;
 use sprinkles::{config, contexts::ScoopContext};
 
 use crate::{abandon, output::colours::eprintln_yellow};
@@ -64,6 +64,16 @@ impl std::fmt::Display for DeprecationWarning {
     }
 }
 
+pub trait Runnable
+where
+    Self: Sized,
+{
+    async fn run(
+        self,
+        ctx: &impl sprinkles::contexts::ScoopContext<Config = sprinkles::config::Scoop>,
+    ) -> anyhow::Result<()>;
+}
+
 // TODO: Run command could return `impl Display` and print that itself
 pub trait Command {
     const BETA: bool = false;
@@ -99,7 +109,7 @@ pub trait CommandRunner: Command {
 
 impl<T: Command> CommandRunner for T {}
 
-#[derive(Debug, Clone, Subcommand, Hooks, Runnable)]
+#[derive(Debug, Clone, Subcommand, Hooks)]
 pub enum Commands {
     App(app::Args),
     #[cfg(not(feature = "v2"))]
@@ -145,4 +155,35 @@ pub enum Commands {
     #[no_hook]
     #[cfg(debug_assertions)]
     Debug(debug::Args),
+}
+
+impl Runnable for Commands {
+    async fn run(
+        self,
+        ctx: &impl sprinkles::contexts::ScoopContext<Config = sprinkles::config::Scoop>,
+    ) -> anyhow::Result<()> {
+        match self {
+            Commands::App(args) => args.run(ctx).await,
+            Commands::Cat(args) => args.run(ctx).await,
+            Commands::Download(args) => args.run(ctx).await,
+            Commands::Home(args) => args.run(ctx).await,
+            Commands::Info(args) => args.run(ctx).await,
+            Commands::List(args) => args.run(ctx).await,
+            Commands::Hook(args) => args.run(ctx).await,
+            Commands::Search(args) => args.run(ctx).await,
+            Commands::UnusedBuckets(args) => args.run(ctx).await,
+            Commands::Bucket(args) => args.run(ctx).await,
+            Commands::Describe(args) => args.run(ctx).await,
+            Commands::Outdated(args) => args.run(ctx).await,
+            Commands::Depends(args) => args.run(ctx).await,
+            Commands::Status(args) => args.run(ctx).await,
+            Commands::Update(args) => args.run(ctx).await,
+            Commands::Export(args) => args.run(ctx).await,
+            Commands::Checkup(args) => args.run(ctx).await,
+            Commands::Cache(args) => args.run(ctx).await,
+            Commands::Scan(args) => args.run(ctx).await,
+            Commands::Credits(args) => args.run(ctx).await,
+            Commands::Debug(args) => args.run(ctx).await,
+        }
+    }
 }
