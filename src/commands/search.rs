@@ -2,7 +2,7 @@ use itertools::Itertools;
 use rayon::prelude::*;
 
 use clap::Parser;
-use regex::{Match, Regex};
+use regex::Regex;
 
 use sprinkles::{
     buckets::Bucket,
@@ -87,25 +87,24 @@ impl Default for MatchCriteria {
     }
 }
 
-struct MatchedManifest<'m> {
-    manifest: &'m Manifest,
-    bucket: String,
+struct MatchedManifest {
+    manifest: Manifest,
     installed: bool,
     name_matched: bool,
     bins: Vec<String>,
     exact_match: bool,
 }
 
-impl<'m> MatchedManifest<'m> {
+impl MatchedManifest {
     pub fn new(
         ctx: &impl ScoopContext,
-        manifest: &'m Manifest,
-        bucket: impl AsRef<str>,
+        manifest: Manifest,
         pattern: &Regex,
         mode: SearchMode,
         arch: Architecture,
-    ) -> MatchedManifest<'m> {
+    ) -> MatchedManifest {
         // TODO: Better display of output
+        let bucket = unsafe { manifest.bucket() };
 
         let match_output = MatchCriteria::matches(
             unsafe { manifest.name() },
@@ -123,12 +122,11 @@ impl<'m> MatchedManifest<'m> {
             mode,
         );
 
-        let installed = manifest.is_installed(ctx, Some(bucket.as_ref()));
+        let installed = manifest.is_installed(ctx, Some(bucket));
         let exact_match = unsafe { manifest.name() } == pattern.to_string();
 
         MatchedManifest {
             manifest,
-            bucket: bucket.as_ref().to_string(),
             installed,
             name_matched: match_output.name,
             bins: match_output.bins,
@@ -145,6 +143,46 @@ impl<'m> MatchedManifest<'m> {
         }
 
         true
+    }
+}
+
+impl std::fmt::Display for MatchedManifest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let styled_package_name = if self.exact_match {
+            console::style(unsafe { self.manifest.name() })
+                .bold()
+                .to_string()
+        } else {
+            unsafe { self.manifest.name() }.to_string()
+        };
+
+        let installed_text = if self.installed { "[installed] " } else { "" };
+
+        let title = format!(
+            "{styled_package_name} ({}) {installed_text}",
+            self.manifest.version
+        );
+
+        let package = if self.bins.is_empty() {
+            Section::new(Children::None)
+        } else {
+            let bins = self
+                .bins
+                .iter()
+                .map(|output| {
+                    Text::new(format!(
+                        "{}{}",
+                        crate::output::WHITESPACE,
+                        console::style(output).bold()
+                    ))
+                })
+                .collect_vec();
+
+            Section::new(Children::from(bins))
+        }
+        .with_title(title);
+
+        std::fmt::Display::fmt(&package, f)
     }
 }
 
@@ -224,14 +262,7 @@ impl super::Command for Args {
                         let sections = manifests
                             .into_par_iter()
                             .map(|manifest| {
-                                MatchedManifest::new(
-                                    ctx,
-                                    &manifest,
-                                    unsafe { manifest.bucket() },
-                                    &pattern,
-                                    self.mode,
-                                    self.arch,
-                                )
+                                MatchedManifest::new(ctx, manifest, &pattern, self.mode, self.arch)
                             })
                             .filter(|matched_manifest| {
                                 matched_manifest.should_match(self.installed)

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Download progress bars now show app name instead of url leaf
 - Download hash checks now report to a progress bar rather than a print message for each
 - Logs will now go into `<PWD>/logs` if running with debug assertions
+- `search` command no longer hides `[installed]` label if only searching for installed apps
 
 ### Removed
 
