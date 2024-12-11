@@ -46,11 +46,7 @@ impl super::Command for Args {
 
         if self.disable_git {
             let root = prodash::tree::Root::new();
-            let handle = crate::progress::render::Renderer::Line.launch_ambient_gui(
-                root.clone(),
-                false,
-                "Cloning repository".into(),
-            )?;
+            let handle = crate::progress::render::LineRenderer::run(root.clone(), true);
 
             let clone_progress = root.add_child_with_id("Cloning repository", *b"CLON");
 
