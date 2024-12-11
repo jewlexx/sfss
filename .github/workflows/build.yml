@@ -20,21 +20,22 @@ env:
   CONTRIBUTORS_TOKEN: ${{ secrets.CONTRIBUTORS_TOKEN }}
   IS_CI: true
   IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') }}
+  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_PUBLISH_TOKEN }}
 
 jobs:
   cargo-deny:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: EmbarkStudios/cargo-deny-action@v2
+      - uses: actions/checkout@v4.2.2
+      - uses: EmbarkStudios/cargo-deny-action@v2.0.4
 
   clippy:
     name: Clippy
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2.7.3
+      - uses: actions/checkout@v4.2.2
+      - uses: Swatinem/rust-cache@v2.7.5
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -49,7 +50,7 @@ jobs:
     name: Formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -64,11 +65,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2.7.3
+      - uses: actions/checkout@v4.2.2
+      - uses: Swatinem/rust-cache@v2.7.5
 
       - name: Install and setup Scoop
-        uses: MinoruSekine/setup-scoop@v4
+        uses: MinoruSekine/setup-scoop@v4.0.1
         with:
           buckets: extras java
 
@@ -86,8 +87,8 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: Swatinem/rust-cache@v2.7.3
+      - uses: actions/checkout@v4.2.2
+      - uses: Swatinem/rust-cache@v2.7.5
         with:
           key: build-${{ matrix.arch }}
       - uses: extractions/setup-just@v2
@@ -105,11 +106,26 @@ jobs:
     needs: [cargo-deny, build, test, clippy, format]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
       - uses: extractions/setup-just@v2
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Verify crate
+        run: cargo publish --dry-run
+
+      - name: Check version matches tag
+        run: |
+          $version = (cargo metadata --format-version 1 | ConvertFrom-Json).packages[0].version
+          $tag = "${{ github.ref_name }}"
+          if ($tag -ne "v$version") {
+            throw "Version mismatch: tag=$tag, Cargo.toml=$version"
+          }
+
+      - name: Publish to crates.io
+        if: ${{ !github.event.release.prerelease }}
+        run: cargo publish
 
       - name: Build and Package
         if: ${{ !github.event.release.prerelease }}
@@ -120,7 +136,7 @@ jobs:
         run: just beta-release-all
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4.4.3
         with:
           name: package.zip
           path: release/*
@@ -133,7 +149,7 @@ jobs:
             release/*.exe.sha256
 
       - name: VirusTotal Scan
-        uses: crazy-max/ghaction-virustotal@v4
+        uses: crazy-max/ghaction-virustotal@v4.1.0
         with:
           update_release_body: true
           vt_api_key: ${{ secrets.VT_API_KEY }}

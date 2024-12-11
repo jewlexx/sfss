@@ -25,7 +25,7 @@ use std::{
 
 use clap::Parser;
 
-use commands::Commands;
+use commands::{Commands, Runnable};
 use logging::Logger;
 use sprinkles::contexts::{AnyContext, ScoopContext, User};
 

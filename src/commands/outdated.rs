@@ -1,17 +1,28 @@
 use clap::{Parser, Subcommand};
 use serde_json::Map;
-use sfsu_macros::Runnable;
 use sprinkles::{config, contexts::ScoopContext};
 
-use super::{Command, CommandRunner, DeprecationMessage, DeprecationWarning};
+use super::{Command, CommandRunner, DeprecationMessage, DeprecationWarning, Runnable};
 
 pub mod apps;
 pub mod buckets;
 
-#[derive(Debug, Clone, Subcommand, Runnable)]
+#[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     Apps(apps::Args),
     Buckets(buckets::Args),
+}
+
+impl Runnable for Commands {
+    async fn run(
+        self,
+        ctx: &impl sprinkles::contexts::ScoopContext<Config = sprinkles::config::Scoop>,
+    ) -> anyhow::Result<()> {
+        match self {
+            Commands::Apps(args) => args.run(ctx).await,
+            Commands::Buckets(args) => args.run(ctx).await,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Parser)]

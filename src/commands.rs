@@ -17,7 +17,6 @@ mod virustotal;
 
 use clap::Subcommand;
 
-use sfsu_macros::{Hooks, Runnable};
 use sprinkles::{config, contexts::ScoopContext};
 
 use crate::{abandon, output::colours::eprintln_yellow};
@@ -64,6 +63,16 @@ impl std::fmt::Display for DeprecationWarning {
     }
 }
 
+pub trait Runnable
+where
+    Self: Sized,
+{
+    async fn run(
+        self,
+        ctx: &impl sprinkles::contexts::ScoopContext<Config = sprinkles::config::Scoop>,
+    ) -> anyhow::Result<()>;
+}
+
 // TODO: Run command could return `impl Display` and print that itself
 pub trait Command {
     const BETA: bool = false;
@@ -99,26 +108,27 @@ pub trait CommandRunner: Command {
 
 impl<T: Command> CommandRunner for T {}
 
-#[derive(Debug, Clone, Subcommand, Hooks, Runnable)]
+// TODO: Replace strip macro with a custom enum
+// Use match to ensure all variants are covered
+// This will allow more flexibility with hooks in future
+// as sfsu invocation deviates from scoop's
+#[derive(Debug, Clone, Subcommand, quork::macros::Strip)]
+#[stripped(ident = CommandHooks)]
+#[stripped_meta(derive(Debug, Copy, Clone, quork::macros::ListVariants, PartialEq, Eq))]
 pub enum Commands {
     App(app::Args),
     #[cfg(not(feature = "v2"))]
-    #[command_name = "app cat"]
     Cat(app::cat::Args),
     #[cfg(all(feature = "download", not(feature = "v2")))]
-    #[command_name = "app download"]
     Download(app::download::Args),
     #[cfg(not(feature = "v2"))]
-    #[command_name = "app home"]
     Home(app::home::Args),
     #[cfg(not(feature = "v2"))]
-    #[command_name = "app info"]
     Info(app::info::Args),
     #[cfg(not(feature = "v2"))]
-    #[command_name = "app list"]
     List(app::list::Args),
 
-    #[no_hook]
+    #[stripped(ignore)]
     Hook(hook::Args),
 
     Search(search::Args),
@@ -131,18 +141,119 @@ pub enum Commands {
     Outdated(outdated::Args),
     Depends(depends::Args),
     Status(status::Args),
-    #[cfg_attr(not(feature = "v2"), no_hook)]
+    #[cfg_attr(not(feature = "v2"), stripped(ignore))]
     Update(update::Args),
     Export(export::Args),
     Checkup(checkup::Args),
     #[cfg(feature = "download")]
     Cache(cache::Args),
-    #[hook_name = "virustotal"]
     #[clap(alias = "virustotal")]
     Scan(virustotal::Args),
-    #[no_hook]
+    #[stripped(ignore)]
     Credits(credits::Args),
-    #[no_hook]
+    #[stripped(ignore)]
     #[cfg(debug_assertions)]
     Debug(debug::Args),
+}
+
+impl Runnable for Commands {
+    async fn run(
+        self,
+        ctx: &impl sprinkles::contexts::ScoopContext<Config = sprinkles::config::Scoop>,
+    ) -> anyhow::Result<()> {
+        match self {
+            Commands::App(args) => args.run(ctx).await,
+            Commands::Cat(args) => args.run(ctx).await,
+            Commands::Download(args) => args.run(ctx).await,
+            Commands::Home(args) => args.run(ctx).await,
+            Commands::Info(args) => args.run(ctx).await,
+            Commands::List(args) => args.run(ctx).await,
+            Commands::Hook(args) => args.run(ctx).await,
+            Commands::Search(args) => args.run(ctx).await,
+            Commands::UnusedBuckets(args) => args.run(ctx).await,
+            Commands::Bucket(args) => args.run(ctx).await,
+            Commands::Describe(args) => args.run(ctx).await,
+            Commands::Outdated(args) => args.run(ctx).await,
+            Commands::Depends(args) => args.run(ctx).await,
+            Commands::Status(args) => args.run(ctx).await,
+            Commands::Update(args) => args.run(ctx).await,
+            Commands::Export(args) => args.run(ctx).await,
+            Commands::Checkup(args) => args.run(ctx).await,
+            Commands::Cache(args) => args.run(ctx).await,
+            Commands::Scan(args) => args.run(ctx).await,
+            Commands::Credits(args) => args.run(ctx).await,
+            Commands::Debug(args) => args.run(ctx).await,
+        }
+    }
+}
+
+impl CommandHooks {
+    pub const fn command<'a>(self) -> &'a str {
+        match self {
+            CommandHooks::App => "app",
+            CommandHooks::Cat => "app cat",
+            CommandHooks::Download => "app download",
+            CommandHooks::Home => "app home",
+            CommandHooks::Info => "app info",
+            CommandHooks::List => "app list",
+            CommandHooks::Search => "search",
+            CommandHooks::UnusedBuckets => "unused-buckets",
+            CommandHooks::Bucket => "bucket",
+            CommandHooks::Describe => "describe",
+            CommandHooks::Outdated => "outdated",
+            CommandHooks::Depends => "depends",
+            CommandHooks::Status => "status",
+            CommandHooks::Export => "export",
+            CommandHooks::Checkup => "checkup",
+            CommandHooks::Cache => "cache",
+            CommandHooks::Scan => "scan",
+        }
+    }
+
+    pub const fn hook<'a>(self) -> &'a str {
+        match self {
+            CommandHooks::App => "app",
+            CommandHooks::Cat => "cat",
+            CommandHooks::Download => "download",
+            CommandHooks::Home => "home",
+            CommandHooks::Info => "info",
+            CommandHooks::List => "list",
+            CommandHooks::Search => "search",
+            CommandHooks::UnusedBuckets => "unused-buckets",
+            CommandHooks::Bucket => "bucket",
+            CommandHooks::Describe => "describe",
+            CommandHooks::Outdated => "outdated",
+            CommandHooks::Depends => "depends",
+            CommandHooks::Status => "status",
+            CommandHooks::Export => "export",
+            CommandHooks::Checkup => "checkup",
+            CommandHooks::Cache => "cache",
+            CommandHooks::Scan => "virustotal",
+        }
+    }
+}
+
+impl From<String> for CommandHooks {
+    fn from(string: String) -> Self {
+        match string.as_str() {
+            "app" => CommandHooks::App,
+            "cat" => CommandHooks::Cat,
+            "download" => CommandHooks::Download,
+            "home" => CommandHooks::Home,
+            "info" => CommandHooks::Info,
+            "list" => CommandHooks::List,
+            "search" => CommandHooks::Search,
+            "unused-buckets" => CommandHooks::UnusedBuckets,
+            "bucket" => CommandHooks::Bucket,
+            "describe" => CommandHooks::Describe,
+            "outdated" => CommandHooks::Outdated,
+            "depends" => CommandHooks::Depends,
+            "status" => CommandHooks::Status,
+            "export" => CommandHooks::Export,
+            "checkup" => CommandHooks::Checkup,
+            "cache" => CommandHooks::Cache,
+            "virustotal" => CommandHooks::Scan,
+            _ => panic!("Invalid command name: {string}"),
+        }
+    }
 }

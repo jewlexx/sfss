@@ -1,36 +1,12 @@
 [package]
+authors = ["Juliette Cordor <professional@maybejules.com>"]
 description = "Stupid Fast Scoop Utils"
 edition = "2021"
-license = { workspace = true }
+license = "MIT OR Apache-2.0"
 name = "sfsu"
-publish = false
+publish = true
+repository = "https://github.com/winpax/sfsu"
 version = "1.15.0"
-
-[workspace]
-members = ["macros", "patches/*"]
-package.authors = ["Juliette Cordor <professional@maybejules.com>"]
-package.homepage = "https://github.com/winpax/sfsu"
-package.license = "MIT OR Apache-2.0"
-package.publish = false
-package.repository = "https://github.com/winpax/sfsu"
-
-[workspace.dependencies]
-chrono = { version = "0.4", features = [
-    "clock",
-    "serde",
-    "std",
-], default-features = false }
-console = { version = "0.15", features = ["windows-console-colors"] }
-futures = "0.3"
-git2 = "0.19"
-heck = "0.5"
-itertools = "0.13"
-log = { version = "0.4", features = ["std"] }
-quork = "0.7"
-rayon = "1.10"
-regex = "1.10"
-serde = { version = "1.0", features = ["derive"] }
-sprinkles-rs = { version = "0.19", features = ["clap"] }
 
 [[bench]]
 harness = false
@@ -69,7 +45,11 @@ v2 = []
 anyhow = "1.0"
 bat = { version = "0.24", default-features = false, features = ["regex-onig"] }
 cfg-if = "1.0"
-chrono.workspace = true
+chrono = { version = "0.4", features = [
+    "clock",
+    "serde",
+    "std",
+], default-features = false }
 clap = { version = "4.5", features = [
     "derive",
     "env",
@@ -77,47 +57,42 @@ clap = { version = "4.5", features = [
     "unicode",
     "wrap_help",
 ] }
-console.workspace = true
+console = { version = "0.15", features = ["windows-console-colors"] }
 crossterm = "0.28"
-derive_more = { version = "1.0.0", features = ["deref_mut", "deref", "as_ref"] }
+derive_more = { version = "1.0", features = ["deref_mut", "deref", "as_ref"] }
 dialoguer = "0.11"
-futures.workspace = true
-heck.workspace = true
+futures = "0.3"
+heck = "0.5"
 human-panic = "2.0"
-itertools.workspace = true
-konst = "0.3.9"
-log = { workspace = true }
+itertools = "0.13"
+konst = "0.3"
+log = { version = "0.4", features = ["std"] }
 open = "5.1"
 parking_lot = "0.12"
-quork.workspace = true
+quork = "0.8"
 ratatui = { version = "0.29", features = ["macros"] }
-rayon.workspace = true
-regex.workspace = true
+rayon = "1.10"
+regex = "1.10"
 semver = "1.0"
-serde.workspace = true
+serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
-sfsu-macros = { version = "0.1.0", path = "./macros" }
 shadow-rs = "0.36"
-sprinkles-rs.workspace = true
+sprinkles-rs = { version = "0.19", features = ["clap"] }
 tokio = { version = "1.37", features = ["full"] }
-vt3 = "0.7.3"
+vt3 = "0.7"
 which = "7.0"
 windows = { version = "0.58", features = ["Win32_Storage_FileSystem"] }
 windows-version = "0.1"
 winreg = "0.52"
 
 [dev-dependencies]
-chrono.workspace = true
 criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
 
 [build-dependencies]
 contribs = { git = "https://github.com/winpax/contribs.git", version = "0.1" }
 dotenv = "0.15"
-git2.workspace = true
+git2 = "0.19"
 shadow-rs = "0.36"
 tokio = { version = "1.37", features = ["full"] }
 toml_edit = "0.22"
 winres = "0.1"
-
-[patch.crates-io]
-instant = { path = "patches/instant" }
