@@ -169,6 +169,9 @@ pub struct Args {
 
     #[clap(short, long, help = "Search mode to use", default_value_t)]
     mode: SearchMode,
+
+    #[clap(from_global)]
+    arch: Architecture,
     // TODO: Add json option
     // #[clap(from_global)]
     // json: bool,
@@ -227,7 +230,7 @@ impl super::Command for Args {
                                     unsafe { manifest.bucket() },
                                     &pattern,
                                     self.mode,
-                                    Architecture::ARCH,
+                                    self.arch,
                                 )
                             })
                             .filter(|matched_manifest| {
