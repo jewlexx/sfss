@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - sfsu will now crash with an error message if `no_junction` is enabled.
 - Added `app download --outdated` flag to download new versions of all outdated apps
 - Warnings in search command for deprecated usage
+- Support `json` flag in `search` command
 
 ### Changed
 

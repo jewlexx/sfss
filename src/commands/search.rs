@@ -10,6 +10,7 @@ use sprinkles::{
     buckets::Bucket,
     contexts::ScoopContext,
     packages::{Manifest, MergeDefaults, SearchMode},
+    version::Version,
     Architecture,
 };
 
@@ -146,10 +147,8 @@ impl MatchedManifest {
 
         true
     }
-}
 
-impl std::fmt::Display for MatchedManifest {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    pub fn to_section(&self) -> Section<Text<String>> {
         let styled_package_name = if self.exact_match {
             console::style(unsafe { self.manifest.name() })
                 .bold()
@@ -165,7 +164,7 @@ impl std::fmt::Display for MatchedManifest {
             self.manifest.version
         );
 
-        let package = if self.bins.is_empty() {
+        if self.bins.is_empty() {
             Section::new(Children::None)
         } else {
             let bins = self
@@ -182,10 +181,33 @@ impl std::fmt::Display for MatchedManifest {
 
             Section::new(Children::from(bins))
         }
-        .with_title(title);
-
-        std::fmt::Display::fmt(&package, f)
+        .with_title(title)
     }
+
+    pub fn into_output(self) -> MatchedOutput {
+        MatchedOutput {
+            name: unsafe { self.manifest.name() }.to_string(),
+            bucket: unsafe { self.manifest.bucket() }.to_string(),
+            version: self.manifest.version.clone(),
+            installed: self.installed,
+            bins: self.bins,
+        }
+    }
+}
+
+impl std::fmt::Display for MatchedManifest {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(&self.to_section(), f)
+    }
+}
+
+#[derive(Debug, serde::Serialize)]
+struct MatchedOutput {
+    name: String,
+    bucket: String,
+    version: Version,
+    installed: bool,
+    bins: Vec<String>,
 }
 
 #[derive(Debug, Clone, Parser)]
@@ -212,9 +234,9 @@ pub struct Args {
 
     #[clap(from_global)]
     arch: Architecture,
-    // TODO: Add json option
-    // #[clap(from_global)]
-    // json: bool,
+
+    #[clap(from_global)]
+    json: bool,
 }
 
 impl super::Command for Args {
@@ -282,9 +304,39 @@ impl super::Command for Args {
             )
             .collect();
 
-        matches.par_sort();
+        if self.json {
+            let json_matches: HashMap<String, Vec<MatchedOutput>> = buckets
+                .into_iter()
+                .map(|(bucket, matches)| {
+                    let bucket_matches: Vec<MatchedOutput> = matches
+                        .into_iter()
+                        .map(MatchedManifest::into_output)
+                        .collect();
 
-        print!("{matches}");
+                    (bucket, bucket_matches)
+                })
+                .collect();
+
+            serde_json::to_writer_pretty(std::io::stdout(), &json_matches)?;
+        } else {
+            let mut matches: Sections<_> = buckets
+                .into_iter()
+                .map(|(bucket, matches)| {
+                    let mut sections = vec![];
+
+                    matches
+                        .par_iter()
+                        .map(MatchedManifest::to_section)
+                        .collect_into_vec(&mut sections);
+
+                    Section::new(Children::from(sections)).with_title(format!("'{bucket}' bucket:"))
+                })
+                .collect();
+
+            matches.par_sort();
+
+            print!("{matches}");
+        }
 
         Ok(())
     }
