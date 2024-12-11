@@ -51,11 +51,14 @@ impl super::Command for Args {
             spinner.set_message("Cloning repository");
             spinner.enable_steady_tick(Duration::from_millis(100));
 
-            sprinkles::git::clone::clone(
-                &repo_url,
-                dest_path,
-                sprinkles::git::clone::progress::Discard,
-            )?;
+            let root = prodash::tree::Root::new();
+            let handle = crate::progress::render::launch_ambient_gui(root, false)?;
+
+            let clone_progress = root.add_child_with_id("Cloning repository", *b"CLON");
+
+            sprinkles::git::clone::clone(&repo_url, dest_path, clone_progress)?;
+
+            handle.await;
 
             spinner.finish_with_message("✅ Repository cloned");
         } else {
