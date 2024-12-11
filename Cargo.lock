@@ -2476,14 +2476,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "instant"
-version = "0.1.0"
-dependencies = [
- "rightnow",
- "web-time",
-]
-
-[[package]]
 name = "inventory"
 version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3498,12 +3490,6 @@ checksum = "57397d16646700483b67d2dd6511d79318f9d057fdbd21a4066aeac8b41d310a"
 dependencies = [
  "bytemuck",
 ]
-
-[[package]]
-name = "rightnow"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ebea34613bff83746c6e173ca6259aa49771f928a73f416bc52560aab9703e82"
 
 [[package]]
 name = "ring"
