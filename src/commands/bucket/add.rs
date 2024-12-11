@@ -48,11 +48,11 @@ impl super::Command for Args {
             let root = prodash::tree::Root::new();
             let handle = crate::progress::render::LineRenderer::run(root.clone(), true);
 
-            let clone_progress = root.add_child_with_id("Cloning repository", *b"CLON");
+            let clone_progress = root.add_child_with_id("Cloning repository", *b"REPO");
 
             sprinkles::git::clone::clone(&repo_url, dest_path, clone_progress)?;
 
-            handle.abort();
+            handle.await?;
         } else {
             let git_path = sprinkles::git::which().calm_expect("git not found");
 

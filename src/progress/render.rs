@@ -17,8 +17,9 @@ impl LineRenderer {
                     std::io::stderr(),
                     Arc::downgrade(&progress),
                     line::Options {
-                        keep_running_if_progress_is_empty: true,
+                        keep_running_if_progress_is_empty: false,
                         throughput,
+                        frames_per_second: 60.0,
                         ..Default::default()
                     }
                     .auto_configure(line::StreamKind::Stderr),
