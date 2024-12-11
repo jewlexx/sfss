@@ -17,7 +17,6 @@ mod virustotal;
 
 use clap::Subcommand;
 
-use sfsu_macros::Hooks;
 use sprinkles::{config, contexts::ScoopContext};
 
 use crate::{abandon, output::colours::eprintln_yellow};
@@ -111,6 +110,7 @@ impl<T: Command> CommandRunner for T {}
 
 #[derive(Debug, Clone, Subcommand, quork::macros::Strip)]
 #[stripped(ident = CommandHooks)]
+#[stripped_meta(derive(Debug, Copy, Clone, quork::macros::ListVariants, PartialEq, Eq))]
 pub enum Commands {
     App(app::Args),
     #[cfg(not(feature = "v2"))]
@@ -249,7 +249,7 @@ impl From<String> for CommandHooks {
             "checkup" => CommandHooks::Checkup,
             "cache" => CommandHooks::Cache,
             "virustotal" => CommandHooks::Scan,
-            _ => panic!("Invalid command name: {}", string),
+            _ => panic!("Invalid command name: {string}"),
         }
     }
 }

@@ -3297,7 +3297,7 @@ checksum = "a4282adb2f46ab23e5e5c7540c5e91f71fb5cb00101a29280b1b77a6e9b2be33"
 dependencies = [
  "cfg-if",
  "nix",
- "quork-proc 0.4.0",
+ "quork-proc 0.4.1",
  "thiserror 2.0.6",
  "windows",
 ]
@@ -3317,9 +3317,9 @@ dependencies = [
 
 [[package]]
 name = "quork-proc"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "858731f0b55934d12e062d610adc54fac3e3779a9ceb0cac3ee87247cc72c52a"
+checksum = "0386bc87f6a1770b849cd7b1127499d9fe6526ea24cc267e0c89874bc7ae5e0c"
 dependencies = [
  "proc-macro-crate",
  "proc-macro-error2",
@@ -3825,7 +3825,6 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "sfsu-macros",
  "shadow-rs",
  "sprinkles-rs",
  "tokio",

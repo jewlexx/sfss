@@ -2,7 +2,7 @@ use clap::Parser;
 use quork::traits::list::ListVariants;
 use sprinkles::{contexts::ScoopContext, shell::Shell};
 
-use super::CommandsHooks;
+use super::CommandHooks as CommandsHooks;
 
 #[derive(Debug, Clone, Parser)]
 /// Generate hooks for the given shell
