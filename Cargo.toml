@@ -1,17 +1,12 @@
 [package]
+authors = ["Juliette Cordor <professional@maybejules.com>"]
 description = "Stupid Fast Scoop Utils"
 edition = "2021"
-license = { workspace = true }
+license = "MIT OR Apache-2.0"
 name = "sfsu"
 publish = true
+repository = "https://github.com/winpax/sfsu"
 version = "1.15.0"
-
-[workspace]
-package.authors = ["Juliette Cordor <professional@maybejules.com>"]
-package.homepage = "https://github.com/winpax/sfsu"
-package.license = "MIT OR Apache-2.0"
-package.publish = false
-package.repository = "https://github.com/winpax/sfsu"
 
 [workspace.dependencies]
 chrono = { version = "0.4", features = [
