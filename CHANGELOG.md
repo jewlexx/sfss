@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Warnings in search command for deprecated usage
 - Support `json` flag in `search` command
 - Warning to help message for `json` flag calling out that it only works for certain commands
+- Progress reporting for `bucket add` command when not using `git` command
 
 ### Changed
 
