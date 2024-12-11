@@ -12,3 +12,13 @@ pub mod truncate;
 
 /// Opinionated whitespace for formatting
 pub const WHITESPACE: &str = "  ";
+
+#[macro_export]
+#[doc = concat!("Print a colored string with the `yellow` color and a `WARN: ` prefix.")]
+macro_rules! warning {
+    ($($arg:tt)*) => {{
+        $crate::output::colours::eprintln_yellow!("WARN: {}", $crate::output::colours::black!($($arg)*))
+    }};
+}
+
+pub use warning;

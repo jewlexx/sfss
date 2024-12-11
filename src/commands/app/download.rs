@@ -30,9 +30,6 @@ use crate::{
 #[derive(Debug, Clone, Parser)]
 /// Download the specified app.
 pub struct Args {
-    #[clap(short, long, help = "Use the specified architecture, if the app supports it", default_value_t = Architecture::ARCH)]
-    arch: Architecture,
-
     #[clap(short = 'H', long, help = "Disable hash validation")]
     no_hash_check: bool,
 
@@ -41,6 +38,9 @@ pub struct Args {
 
     #[clap(long, help = "Download new versions of all outdated apps")]
     outdated: bool,
+
+    #[clap(from_global)]
+    arch: Architecture,
 }
 
 impl super::Command for Args {

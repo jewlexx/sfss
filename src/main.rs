@@ -27,7 +27,10 @@ use clap::Parser;
 
 use commands::{Commands, Runnable};
 use logging::Logger;
-use sprinkles::contexts::{AnyContext, ScoopContext, User};
+use sprinkles::{
+    contexts::{AnyContext, ScoopContext, User},
+    Architecture,
+};
 
 #[cfg(feature = "contexts")]
 use sprinkles::contexts::Global;
@@ -117,6 +120,15 @@ struct Args {
     #[cfg(feature = "contexts")]
     #[clap(short, long, global = true, help = "Use the global Scoop context")]
     global: bool,
+
+    #[clap(
+        short,
+        long,
+        global = true,
+        help = "Use the specified architecture, if the app and command support it",
+        default_value_t = Architecture::ARCH
+    )]
+    arch: Architecture,
 
     #[clap(
         global = true,
