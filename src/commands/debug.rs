@@ -1,12 +1,11 @@
 use clap::{Parser, Subcommand};
-use sfsu_macros::Hooks;
 use sprinkles::{config, contexts::ScoopContext};
 
 use super::{Command, CommandRunner, Runnable};
 
 mod save;
 
-#[derive(Debug, Hooks, Clone, Subcommand)]
+#[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     Save(save::Args),
 }
