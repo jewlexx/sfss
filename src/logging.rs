@@ -1,5 +1,6 @@
 use std::{fs::File, io::Write, path::PathBuf};
 
+use anyhow::Context;
 use chrono::Local;
 use log::{Level, LevelFilter};
 use rayon::iter::{ParallelBridge, ParallelIterator};
@@ -80,7 +81,10 @@ impl Logger {
                 for entry in std::fs::read_dir(legacy_dir)? {
                     let entry = entry?;
                     let path = entry.path();
-                    let name = path.file_name().unwrap().to_string_lossy();
+                    let name = path
+                        .file_name()
+                        .context("missing file name for log entry")?
+                        .to_string_lossy();
 
                     let new_path = logging_dir.join(name.as_ref());
 
@@ -121,14 +125,11 @@ impl log::Log for Logger {
                 Level::Error => eprintln_red!("{}", record.args()),
                 Level::Warn => eprintln_yellow!("{}", record.args()),
                 _ => {
-                    // TODO: Add a queue of sorts because this doesn't work well with multiple threads
-                    writeln!(
-                        self.file.as_ref().unwrap(),
-                        "{}: {}",
-                        record.level(),
-                        record.args()
-                    )
-                    .expect("writing to log file");
+                    if let Some(mut file) = self.file.as_ref() {
+                        // TODO: Add a queue of sorts because this doesn't work well with multiple threads
+                        writeln!(file, "{}: {}", record.level(), record.args())
+                            .expect("writing to log file");
+                    }
                 }
             }
         }

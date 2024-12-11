@@ -15,6 +15,7 @@ mod limits;
 mod logging;
 mod models;
 mod output;
+mod progress;
 mod validations;
 mod wrappers;
 
