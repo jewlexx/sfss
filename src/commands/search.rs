@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use itertools::Itertools;
 use rayon::prelude::*;
 
@@ -254,12 +256,12 @@ impl super::Command for Args {
                 Bucket::list_all(ctx)?
             };
 
-        let mut matches: Sections<_> = matching_buckets
+        let buckets: HashMap<String, Vec<MatchedManifest>> = matching_buckets
             .par_iter()
             .filter_map(
                 |bucket| match bucket.matches(ctx, self.installed, &pattern, self.mode) {
                     Ok(manifests) => {
-                        let sections = manifests
+                        let matches = manifests
                             .into_par_iter()
                             .map(|manifest| {
                                 MatchedManifest::new(ctx, manifest, &pattern, self.mode, self.arch)
@@ -269,13 +271,10 @@ impl super::Command for Args {
                             })
                             .collect::<Vec<_>>();
 
-                        if sections.is_empty() {
+                        if matches.is_empty() {
                             None
                         } else {
-                            let section = Section::new(Children::from(sections))
-                                .with_title(format!("'{}' bucket:", bucket.name()));
-
-                            Some(section)
+                            Some((bucket.name().to_string(), matches))
                         }
                     }
                     _ => None,
