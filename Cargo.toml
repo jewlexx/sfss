@@ -59,13 +59,13 @@ clap = { version = "4.5", features = [
 ] }
 console = { version = "0.15", features = ["windows-console-colors"] }
 crossterm = "0.28"
-derive_more = { version = "1.0.0", features = ["deref_mut", "deref", "as_ref"] }
+derive_more = { version = "1.0", features = ["deref_mut", "deref", "as_ref"] }
 dialoguer = "0.11"
 futures = "0.3"
 heck = "0.5"
 human-panic = "2.0"
 itertools = "0.13"
-konst = "0.3.9"
+konst = "0.3"
 log = { version = "0.4", features = ["std"] }
 open = "5.1"
 parking_lot = "0.12"
@@ -79,7 +79,7 @@ serde_json = { version = "1.0", features = ["preserve_order"] }
 shadow-rs = "0.36"
 sprinkles-rs = { version = "0.19", features = ["clap"] }
 tokio = { version = "1.37", features = ["full"] }
-vt3 = "0.7.3"
+vt3 = "0.7"
 which = "7.0"
 windows = { version = "0.58", features = ["Win32_Storage_FileSystem"] }
 windows-version = "0.1"
