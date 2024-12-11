@@ -108,6 +108,10 @@ pub trait CommandRunner: Command {
 
 impl<T: Command> CommandRunner for T {}
 
+// TODO: Replace strip macro with a custom enum
+// Use match to ensure all variants are covered
+// This will allow more flexibility with hooks in future
+// as sfsu invocation deviates from scoop's
 #[derive(Debug, Clone, Subcommand, quork::macros::Strip)]
 #[stripped(ident = CommandHooks)]
 #[stripped_meta(derive(Debug, Copy, Clone, quork::macros::ListVariants, PartialEq, Eq))]
