@@ -142,14 +142,14 @@ jobs:
           path: release/*
 
       - name: Upload & Publish
-        uses: softprops/action-gh-release@v2.2.0
+        uses: softprops/action-gh-release@v2.0.4
         with:
           files: |
             release/*.exe
             release/*.exe.sha256
 
       - name: VirusTotal Scan
-        uses: crazy-max/ghaction-virustotal@v4.1.0
+        uses: crazy-max/ghaction-virustotal@v4
         with:
           update_release_body: true
           vt_api_key: ${{ secrets.VT_API_KEY }}
