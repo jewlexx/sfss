@@ -3838,22 +3838,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sfsu-macros"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "heck",
- "proc-macro-crate",
- "proc-macro-error2",
- "proc-macro2",
- "quork 0.8.1",
- "quote",
- "sprinkles-rs",
- "strum",
- "syn",
-]
-
-[[package]]
 name = "sha1"
 version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"

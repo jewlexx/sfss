@@ -7,7 +7,7 @@ publish = true
 version = "1.15.0"
 
 [workspace]
-members = ["macros", "patches/*"]
+members = ["patches/*"]
 package.authors = ["Juliette Cordor <professional@maybejules.com>"]
 package.homepage = "https://github.com/winpax/sfsu"
 package.license = "MIT OR Apache-2.0"
