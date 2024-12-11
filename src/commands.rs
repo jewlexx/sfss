@@ -289,6 +289,7 @@ impl From<String> for CommandHooks {
             "checkup" => CommandHooks::Checkup,
             "cache" => CommandHooks::Cache,
             "virustotal" => CommandHooks::Scan,
+            #[cfg(feature = "v2")]
             "update" => CommandHooks::Update,
             _ => panic!("Invalid command name: {string}"),
         }
