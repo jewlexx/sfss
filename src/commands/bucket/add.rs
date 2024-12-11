@@ -47,10 +47,6 @@ impl super::Command for Args {
         }
 
         if self.disable_git {
-            let spinner = indicatif::ProgressBar::new_spinner();
-            spinner.set_message("Cloning repository");
-            spinner.enable_steady_tick(Duration::from_millis(100));
-
             let root = prodash::tree::Root::new();
             let handle = crate::progress::render::launch_ambient_gui(root.clone(), false)?;
 
@@ -58,9 +54,7 @@ impl super::Command for Args {
 
             sprinkles::git::clone::clone(&repo_url, dest_path, clone_progress)?;
 
-            handle.await;
-
-            spinner.finish_with_message("✅ Repository cloned");
+            handle.await?;
         } else {
             let git_path = sprinkles::git::which().calm_expect("git not found");
 

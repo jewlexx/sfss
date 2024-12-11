@@ -73,7 +73,7 @@ impl Renderer {
                             ..tui::Options::default()
                         },
                         futures::stream::select(
-                            window_resize_stream(true),
+                            window_resize_stream(false),
                             ticker(Duration::from_secs_f32(1.0)).map(move |()| {
                                 ticks += 1;
                                 if ticks % 2 == 0 {
@@ -115,7 +115,7 @@ pub fn launch_ambient_gui(
 
     let render_fut = renderer.run(progress, throughput)?;
 
-    let handle = task::spawn(render_fut.map(|_| ()));
+    let handle = task::spawn(render_fut);
 
     Ok(handle)
 }
