@@ -99,7 +99,7 @@ struct Args {
     #[clap(
         long,
         global = true,
-        help = "Print in the raw JSON output, rather than a human readable format"
+        help = "Print in the raw JSON output, rather than a human readable format, if the command supports it"
     )]
     json: bool,
 
@@ -112,7 +112,7 @@ struct Args {
     #[clap(
         long,
         global = true,
-        help = "Disable using git commands for certain parts of the program. Allows sfsu to work entirely if you don't have git installed, but can negatively affect performance.",
+        help = "Disable using git commands for certain parts of the program. Allows sfsu to work entirely if you don't have git installed, but can negatively affect performance",
         env = "DISABLE_GIT"
     )]
     disable_git: bool,
