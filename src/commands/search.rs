@@ -2,7 +2,7 @@ use itertools::Itertools;
 use rayon::prelude::*;
 
 use clap::Parser;
-use regex::Regex;
+use regex::{Match, Regex};
 
 use sprinkles::{
     buckets::Bucket,
@@ -14,7 +14,6 @@ use sprinkles::{
 use crate::{
     calm_panic::CalmUnwrap,
     output::{
-        colours::eprintln_yellow,
         sectioned::{Children, Section, Sections, Text},
         warning,
     },
@@ -40,42 +39,45 @@ impl MatchCriteria {
     /// Check if the name matches
     pub fn matches(
         file_name: &str,
-        manifest: Option<&Manifest>,
-        mode: SearchMode,
         pattern: &Regex,
-        arch: Architecture,
+        list_binaries: impl FnOnce() -> Vec<String>,
+        mode: SearchMode,
     ) -> Self {
-        let file_name = file_name.to_string();
-
         let mut output = MatchCriteria::new();
 
-        if mode.match_names() && pattern.is_match(&file_name) {
-            output.name = true;
+        if mode.match_names() {
+            output.match_names(pattern, file_name);
         }
 
-        if let Some(manifest) = manifest {
-            let binaries = manifest
-                .architecture
-                .merge_default(manifest.install_config.clone(), arch)
-                .bin
-                .map(|b| b.to_vec())
-                .unwrap_or_default();
-
-            let binary_matches = binaries
-                .into_iter()
-                .filter(|binary| pattern.is_match(binary))
-                .filter_map(|b| {
-                    if pattern.is_match(&b) {
-                        Some(b.clone())
-                    } else {
-                        None
-                    }
-                });
-
-            output.bins.extend(binary_matches);
+        if mode.match_binaries() {
+            output.match_binaries(pattern, list_binaries());
         }
 
         output
+    }
+
+    fn match_names(&mut self, pattern: &Regex, file_name: &str) -> &mut Self {
+        if pattern.is_match(file_name) {
+            self.name = true;
+        }
+        self
+    }
+
+    fn match_binaries(&mut self, pattern: &Regex, binaries: Vec<String>) -> &mut Self {
+        let binary_matches = binaries
+            .into_iter()
+            .filter(|binary| pattern.is_match(binary))
+            .filter_map(|b| {
+                if pattern.is_match(&b) {
+                    Some(b.clone())
+                } else {
+                    None
+                }
+            });
+
+        self.bins.extend(binary_matches);
+
+        self
     }
 }
 
@@ -85,79 +87,65 @@ impl Default for MatchCriteria {
     }
 }
 
-pub fn parse_output(
-    manifest: &Manifest,
-    ctx: &impl ScoopContext,
-    bucket: impl AsRef<str>,
-    installed_only: bool,
-    pattern: &Regex,
-    mode: SearchMode,
-    arch: Architecture,
-) -> Option<Section<Text<String>>> {
-    // TODO: Better display of output
+struct MatchedManifest<'m> {
+    manifest: &'m Manifest,
+    bucket: String,
+    installed: bool,
+    name_matched: bool,
+    bins: Vec<String>,
+    exact_match: bool,
+}
 
-    // This may be a bit of a hack, but it works
+impl<'m> MatchedManifest<'m> {
+    pub fn new(
+        ctx: &impl ScoopContext,
+        manifest: &'m Manifest,
+        bucket: impl AsRef<str>,
+        pattern: &Regex,
+        mode: SearchMode,
+        arch: Architecture,
+    ) -> MatchedManifest<'m> {
+        // TODO: Better display of output
 
-    let match_output = MatchCriteria::matches(
-        unsafe { manifest.name() },
-        if mode.match_binaries() {
-            Some(manifest)
-        } else {
-            None
-        },
-        mode,
-        pattern,
-        arch,
-    );
+        let match_output = MatchCriteria::matches(
+            unsafe { manifest.name() },
+            pattern,
+            // Function to list binaries from a manifest
+            // Passed as a closure to avoid this parsing if bin matching isn't required
+            || {
+                manifest
+                    .architecture
+                    .merge_default(manifest.install_config.clone(), arch)
+                    .bin
+                    .map(|b| b.to_vec())
+                    .unwrap_or_default()
+            },
+            mode,
+        );
 
-    if !match_output.name && match_output.bins.is_empty() {
-        return None;
+        let installed = manifest.is_installed(ctx, Some(bucket.as_ref()));
+        let exact_match = unsafe { manifest.name() } == pattern.to_string();
+
+        MatchedManifest {
+            manifest,
+            bucket: bucket.as_ref().to_string(),
+            installed,
+            name_matched: match_output.name,
+            bins: match_output.bins,
+            exact_match,
+        }
     }
 
-    let is_installed = manifest.is_installed(ctx, Some(bucket.as_ref()));
-    if installed_only && !is_installed {
-        return None;
+    pub fn should_match(&self, installed_only: bool) -> bool {
+        if !self.installed && installed_only {
+            return false;
+        }
+        if !self.name_matched && self.bins.is_empty() {
+            return false;
+        }
+
+        true
     }
-
-    let styled_package_name = if unsafe { manifest.name() } == pattern.to_string() {
-        console::style(unsafe { manifest.name() })
-            .bold()
-            .to_string()
-    } else {
-        unsafe { manifest.name() }.to_string()
-    };
-
-    let installed_text = if is_installed && !installed_only {
-        "[installed] "
-    } else {
-        ""
-    };
-
-    let title = format!(
-        "{styled_package_name} ({}) {installed_text}",
-        manifest.version
-    );
-
-    let package = if mode.match_binaries() {
-        let bins = match_output
-            .bins
-            .iter()
-            .map(|output| {
-                Text::new(format!(
-                    "{}{}",
-                    crate::output::WHITESPACE,
-                    console::style(output).bold()
-                ))
-            })
-            .collect_vec();
-
-        Section::new(Children::from(bins))
-    } else {
-        Section::new(Children::None)
-    }
-    .with_title(title);
-
-    Some(package)
 }
 
 #[derive(Debug, Clone, Parser)]
@@ -229,19 +217,21 @@ impl super::Command for Args {
             .par_iter()
             .filter_map(
                 |bucket| match bucket.matches(ctx, self.installed, &pattern, self.mode) {
-                    Ok(manifest) => {
-                        let sections = manifest
+                    Ok(manifests) => {
+                        let sections = manifests
                             .into_par_iter()
-                            .filter_map(|manifest| {
-                                parse_output(
-                                    &manifest,
+                            .map(|manifest| {
+                                MatchedManifest::new(
                                     ctx,
+                                    &manifest,
                                     unsafe { manifest.bucket() },
-                                    self.installed,
                                     &pattern,
                                     self.mode,
                                     Architecture::ARCH,
                                 )
+                            })
+                            .filter(|matched_manifest| {
+                                matched_manifest.should_match(self.installed)
                             })
                             .collect::<Vec<_>>();
 
