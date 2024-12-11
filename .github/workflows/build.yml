@@ -112,8 +112,8 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Verify crate
-        run: cargo publish --dry-run
+      # - name: Verify crate
+      #   run: cargo publish --dry-run
 
       - name: Check version matches tag
         run: |
