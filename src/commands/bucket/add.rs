@@ -52,7 +52,7 @@ impl super::Command for Args {
             spinner.enable_steady_tick(Duration::from_millis(100));
 
             let root = prodash::tree::Root::new();
-            let handle = crate::progress::render::launch_ambient_gui(root, false)?;
+            let handle = crate::progress::render::launch_ambient_gui(root.clone(), false)?;
 
             let clone_progress = root.add_child_with_id("Cloning repository", *b"CLON");
 
