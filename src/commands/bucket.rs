@@ -34,6 +34,7 @@ impl Runnable for Commands {
             Commands::List(args) => args.run(ctx).await,
             Commands::Known(args) => args.run(ctx).await,
             Commands::Unused(args) => args.run(ctx).await,
+            #[cfg(not(feature = "v2"))]
             Commands::Outdated(args) => args.run(ctx).await,
         }
     }

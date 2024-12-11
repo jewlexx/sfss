@@ -163,16 +163,24 @@ impl Runnable for Commands {
     ) -> anyhow::Result<()> {
         match self {
             Commands::App(args) => args.run(ctx).await,
+            #[cfg(not(feature = "v2"))]
             Commands::Cat(args) => args.run(ctx).await,
+            #[cfg(all(feature = "download", not(feature = "v2")))]
             Commands::Download(args) => args.run(ctx).await,
+            #[cfg(not(feature = "v2"))]
             Commands::Home(args) => args.run(ctx).await,
+            #[cfg(not(feature = "v2"))]
             Commands::Info(args) => args.run(ctx).await,
+            #[cfg(not(feature = "v2"))]
             Commands::List(args) => args.run(ctx).await,
             Commands::Hook(args) => args.run(ctx).await,
             Commands::Search(args) => args.run(ctx).await,
+            #[cfg(not(feature = "v2"))]
             Commands::UnusedBuckets(args) => args.run(ctx).await,
             Commands::Bucket(args) => args.run(ctx).await,
+            #[cfg(not(feature = "v2"))]
             Commands::Describe(args) => args.run(ctx).await,
+            #[cfg(not(feature = "v2"))]
             Commands::Outdated(args) => args.run(ctx).await,
             Commands::Depends(args) => args.run(ctx).await,
             Commands::Status(args) => args.run(ctx).await,
@@ -191,15 +199,23 @@ impl CommandHooks {
     pub const fn command<'a>(self) -> &'a str {
         match self {
             CommandHooks::App => "app",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::Cat => "app cat",
+            #[cfg(all(feature = "download", not(feature = "v2")))]
             CommandHooks::Download => "app download",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::Home => "app home",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::Info => "app info",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::List => "app list",
             CommandHooks::Search => "search",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::UnusedBuckets => "unused-buckets",
             CommandHooks::Bucket => "bucket",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::Describe => "describe",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::Outdated => "outdated",
             CommandHooks::Depends => "depends",
             CommandHooks::Status => "status",
@@ -207,21 +223,31 @@ impl CommandHooks {
             CommandHooks::Checkup => "checkup",
             CommandHooks::Cache => "cache",
             CommandHooks::Scan => "scan",
+            #[cfg(feature = "v2")]
+            CommandHooks::Update => "update",
         }
     }
 
     pub const fn hook<'a>(self) -> &'a str {
         match self {
             CommandHooks::App => "app",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::Cat => "cat",
+            #[cfg(all(feature = "download", not(feature = "v2")))]
             CommandHooks::Download => "download",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::Home => "home",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::Info => "info",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::List => "list",
             CommandHooks::Search => "search",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::UnusedBuckets => "unused-buckets",
             CommandHooks::Bucket => "bucket",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::Describe => "describe",
+            #[cfg(not(feature = "v2"))]
             CommandHooks::Outdated => "outdated",
             CommandHooks::Depends => "depends",
             CommandHooks::Status => "status",
@@ -229,6 +255,8 @@ impl CommandHooks {
             CommandHooks::Checkup => "checkup",
             CommandHooks::Cache => "cache",
             CommandHooks::Scan => "virustotal",
+            #[cfg(feature = "v2")]
+            CommandHooks::Update => "update",
         }
     }
 }
@@ -237,15 +265,23 @@ impl From<String> for CommandHooks {
     fn from(string: String) -> Self {
         match string.as_str() {
             "app" => CommandHooks::App,
+            #[cfg(not(feature = "v2"))]
             "cat" => CommandHooks::Cat,
+            #[cfg(all(feature = "download", not(feature = "v2")))]
             "download" => CommandHooks::Download,
+            #[cfg(not(feature = "v2"))]
             "home" => CommandHooks::Home,
+            #[cfg(not(feature = "v2"))]
             "info" => CommandHooks::Info,
+            #[cfg(not(feature = "v2"))]
             "list" => CommandHooks::List,
             "search" => CommandHooks::Search,
+            #[cfg(not(feature = "v2"))]
             "unused-buckets" => CommandHooks::UnusedBuckets,
             "bucket" => CommandHooks::Bucket,
+            #[cfg(not(feature = "v2"))]
             "describe" => CommandHooks::Describe,
+            #[cfg(not(feature = "v2"))]
             "outdated" => CommandHooks::Outdated,
             "depends" => CommandHooks::Depends,
             "status" => CommandHooks::Status,
@@ -253,6 +289,7 @@ impl From<String> for CommandHooks {
             "checkup" => CommandHooks::Checkup,
             "cache" => CommandHooks::Cache,
             "virustotal" => CommandHooks::Scan,
+            "update" => CommandHooks::Update,
             _ => panic!("Invalid command name: {string}"),
         }
     }

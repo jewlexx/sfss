@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixes
+
+- Fix match arms on disabled commands with certain feature flags
+
 ### Added
 
 - Added config validations.
