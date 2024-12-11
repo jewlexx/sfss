@@ -112,6 +112,17 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Verify crate
+        run: cargo publish --dry-run
+
+      - name: Check version matches tag
+        run: |
+          $version = (cargo metadata --format-version 1 | ConvertFrom-Json).packages[0].version
+          $tag = "${{ github.ref_name }}"
+          if ($tag -ne "v$version") {
+            throw "Version mismatch: tag=$tag, Cargo.toml=$version"
+          }
+
       - name: Publish to crates.io
         if: ${{ !github.event.release.prerelease }}
         run: cargo publish
