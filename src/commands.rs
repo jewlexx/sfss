@@ -190,6 +190,7 @@ impl Runnable for Commands {
             Commands::Cache(args) => args.run(ctx).await,
             Commands::Scan(args) => args.run(ctx).await,
             Commands::Credits(args) => args.run(ctx).await,
+            #[cfg(debug_assertions)]
             Commands::Debug(args) => args.run(ctx).await,
         }
     }
