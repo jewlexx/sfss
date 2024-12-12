@@ -134,15 +134,13 @@ impl Args {
                         cache_entry.url_hash
                     );
                     std::fs::remove_file(ddbg!(entry.path()))?;
+                    debug!("Removed cache entry: {}", cache_entry.url_hash);
                 }
             }
+
+            debug!("Cleaned up old cache entries");
         }
 
-        /**
-         *     if ($cache) {
-            Remove-Item "$cachedir\$app#*" -Exclude "$app#$current_version#*"
-        }
-         */
         unimplemented!()
     }
 }
