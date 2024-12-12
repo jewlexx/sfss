@@ -125,7 +125,7 @@ impl Args {
         if self.cache {
             let cache_path = ctx.cache_path();
 
-            while let Some(entry) = tokio::fs::read_dir(&cache_path).await?.next_entry().await? {
+            for entry in std::fs::read_dir(&cache_path)?.filter_map(Result::ok) {
                 let cache_entry = CacheEntry::parse_path(ddbg!(entry.path()))?;
 
                 if Some(cache_entry.name) == app.name() && cache_entry.version != current_version {
