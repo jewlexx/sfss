@@ -32,6 +32,8 @@ impl Runnable for Commands {
     ) -> anyhow::Result<()> {
         match self {
             Commands::Cat(args) => args.run(ctx).await,
+            Commands::Cleanup(args) => args.run(ctx).await,
+            #[cfg(feature = "download")]
             Commands::Download(args) => args.run(ctx).await,
             Commands::Home(args) => args.run(ctx).await,
             Commands::Info(args) => args.run(ctx).await,
