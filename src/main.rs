@@ -23,6 +23,7 @@ mod limits;
 mod logging;
 mod models;
 mod output;
+mod progress;
 mod validations;
 mod wrappers;
 
@@ -33,9 +34,12 @@ use std::{
 
 use clap::Parser;
 
-use commands::Commands;
+use commands::{Commands, Runnable};
 use logging::Logger;
-use sprinkles::contexts::{AnyContext, ScoopContext, User};
+use sprinkles::{
+    contexts::{AnyContext, ScoopContext, User},
+    Architecture,
+};
 
 #[cfg(feature = "contexts")]
 use sprinkles::contexts::Global;
@@ -104,7 +108,7 @@ struct Args {
     #[clap(
         long,
         global = true,
-        help = "Print in the raw JSON output, rather than a human readable format"
+        help = "Print in the raw JSON output, rather than a human readable format, if the command supports it"
     )]
     json: bool,
 
@@ -117,7 +121,7 @@ struct Args {
     #[clap(
         long,
         global = true,
-        help = "Disable using git commands for certain parts of the program. Allows sfsu to work entirely if you don't have git installed, but can negatively affect performance.",
+        help = "Disable using git commands for certain parts of the program. Allows sfsu to work entirely if you don't have git installed, but can negatively affect performance",
         env = "DISABLE_GIT"
     )]
     disable_git: bool,
@@ -125,6 +129,15 @@ struct Args {
     #[cfg(feature = "contexts")]
     #[clap(short, long, global = true, help = "Use the global Scoop context")]
     global: bool,
+
+    #[clap(
+        short,
+        long,
+        global = true,
+        help = "Use the specified architecture, if the app and command support it",
+        default_value_t = Architecture::ARCH
+    )]
+    arch: Architecture,
 
     #[clap(
         global = true,

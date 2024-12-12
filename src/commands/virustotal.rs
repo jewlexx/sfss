@@ -112,12 +112,7 @@ pub struct Args {
     )]
     filter: Option<Status>,
 
-    #[clap(
-        short,
-        long,
-        help = "Use the specified architecture, if the app supports it",
-        default_value_t = Architecture::ARCH
-    )]
+    #[clap(from_global)]
     arch: Architecture,
 
     #[clap(short = 'A', long, help = "Scan all installed apps")]

@@ -4,7 +4,6 @@ use anyhow::Context;
 use clap::{Parser, Subcommand};
 use regex::Regex;
 use serde::Serialize;
-use sfsu_macros::Runnable;
 use sprinkles::{config, contexts::ScoopContext};
 use tokio::task::JoinSet;
 
@@ -12,6 +11,8 @@ mod list;
 mod remove;
 
 use crate::{abandon, commands::CommandRunner, wrappers::sizes::Size};
+
+use super::Runnable;
 
 #[derive(Debug, Clone, Serialize, PartialEq, Eq, PartialOrd, Ord)]
 struct CacheEntry {
@@ -93,12 +94,24 @@ impl CacheEntry {
     }
 }
 
-#[derive(Debug, Clone, Subcommand, Runnable)]
+#[derive(Debug, Clone, Subcommand)]
 enum Commands {
     #[clap(alias = "show", alias = "ls")]
     List(list::Args),
     #[clap(alias = "rm")]
     Remove(remove::Args),
+}
+
+impl Runnable for Commands {
+    async fn run(
+        self,
+        ctx: &impl sprinkles::contexts::ScoopContext<Config = sprinkles::config::Scoop>,
+    ) -> anyhow::Result<()> {
+        match self {
+            Commands::List(args) => args.run(ctx).await,
+            Commands::Remove(args) => args.run(ctx).await,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Parser)]

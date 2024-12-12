@@ -7,12 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixes
+
+- Fix match arms on disabled commands with certain feature flags
+
 ### Added
 
 - Added config validations.
   - sfsu will now crash with an error message if `no_junction` is enabled.
 - Added `app download --outdated` flag to download new versions of all outdated apps
 - Returned logs in debug assertions going into current directory
+- Warnings in search command for deprecated usage
+- Support `json` flag in `search` command
+- Warning to help message for `json` flag calling out that it only works for certain commands
+- Progress reporting for `bucket add` command when not using `git` command
 
 ### Changed
 
@@ -20,6 +28,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Download progress bars now show app name instead of url leaf
 - Download hash checks now report to a progress bar rather than a print message for each
 - Renamed `packages` parameter to `apps` in `app download` command (this should not affect usage at all)
+- Logs will now go into `<PWD>/logs` if running with debug assertions
+- `search` command no longer hides `[installed]` label if only searching for installed apps
+- Removed `disable_git` flag from `bucket add` command
+  - `bucket add` command now always uses gitoxide to clone the bucket
+
+### Removed
+
+- `sfsu_macros` crate
 
 ## [1.15.0] - 2024-03-11
 

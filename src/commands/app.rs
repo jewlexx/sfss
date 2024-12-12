@@ -9,12 +9,11 @@ pub mod purge;
 
 use clap::{Parser, Subcommand};
 
-use sfsu_macros::Runnable;
 use sprinkles::{config, contexts::ScoopContext};
 
-use super::{Command, CommandRunner};
+use super::{Command, CommandRunner, Runnable};
 
-#[derive(Debug, Clone, Subcommand, Runnable)]
+#[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     Cat(cat::Args),
     Cleanup(cleanup::Args),
@@ -24,6 +23,22 @@ pub enum Commands {
     Info(info::Args),
     List(list::Args),
     Purge(purge::Args),
+}
+
+impl Runnable for Commands {
+    async fn run(
+        self,
+        ctx: &impl sprinkles::contexts::ScoopContext<Config = sprinkles::config::Scoop>,
+    ) -> anyhow::Result<()> {
+        match self {
+            Commands::Cat(args) => args.run(ctx).await,
+            Commands::Download(args) => args.run(ctx).await,
+            Commands::Home(args) => args.run(ctx).await,
+            Commands::Info(args) => args.run(ctx).await,
+            Commands::List(args) => args.run(ctx).await,
+            Commands::Purge(args) => args.run(ctx).await,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Parser)]
