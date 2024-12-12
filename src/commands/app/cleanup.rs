@@ -1,5 +1,6 @@
 use std::{path::Path, str::FromStr};
 
+use anyhow::Context;
 use clap::{builder::OsStr, Parser};
 use futures::{stream::FuturesUnordered, StreamExt, TryFutureExt, TryStreamExt};
 use sprinkles::{
@@ -126,6 +127,14 @@ impl Args {
 
             while let Some(entry) = tokio::fs::read_dir(&cache_path).await?.next_entry().await? {
                 let cache_entry = CacheEntry::parse_path(ddbg!(entry.path()))?;
+
+                if Some(cache_entry.name) == app.name() && cache_entry.version != current_version {
+                    debug!(
+                        "Found matching outdated cache entry: {}",
+                        cache_entry.url_hash
+                    );
+                    std::fs::remove_file(ddbg!(entry.path()))?;
+                }
             }
         }
 
@@ -143,7 +152,25 @@ impl Args {
 pub struct CacheEntry {
     name: String,
     version: Version,
-    url_hash: String,
+    url_hash: UrlHash,
+}
+
+#[derive(Debug)]
+enum UrlHash {
+    Valid([char; 7]),
+    Invalid(String),
+}
+
+impl std::fmt::Display for UrlHash {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            UrlHash::Valid(chars) => {
+                let hash_string = chars.iter().collect::<String>();
+                std::fmt::Display::fmt(&hash_string, f)
+            }
+            UrlHash::Invalid(hash_string) => std::fmt::Display::fmt(hash_string, f),
+        }
+    }
 }
 
 impl FromStr for CacheEntry {
@@ -172,7 +199,19 @@ impl CacheEntry {
         Ok(Self {
             name: name.to_string(),
             version: Version::new(version),
-            url_hash: hash.to_string(),
+            url_hash: {
+                let hash_chars = hash.chars().collect::<Vec<_>>();
+
+                if hash_chars.len() == 7 {
+                    UrlHash::Valid(
+                        hash_chars
+                            .try_into()
+                            .expect("Valid length of 7. This is a bug"),
+                    )
+                } else {
+                    UrlHash::Invalid(hash_chars.into_iter().collect())
+                }
+            },
         })
     }
 }
