@@ -131,8 +131,8 @@ impl log::Log for Logger {
     fn log(&self, record: &log::Record<'_>) {
         if self.enabled(record.metadata()) {
             match record.metadata().level() {
-                Level::Error => eprintln_red!("{}", record.args()),
-                Level::Warn => eprintln_yellow!("{}", record.args()),
+                Level::Error => eprintln_red!("ERROR: {}", record.args()),
+                Level::Warn => eprintln_yellow!("WARN: {}", record.args()),
                 _ => {
                     if let Some(mut file) = self.file.as_ref() {
                         // TODO: Add a queue of sorts because this doesn't work well with multiple threads

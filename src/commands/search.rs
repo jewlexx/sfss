@@ -16,10 +16,7 @@ use sprinkles::{
 
 use crate::{
     calm_panic::CalmUnwrap,
-    output::{
-        sectioned::{Children, Section, Sections, Text},
-        warning,
-    },
+    output::sectioned::{Children, Section, Sections, Text},
 };
 
 #[derive(Debug, Clone)]
@@ -241,25 +238,24 @@ pub struct Args {
 
 impl super::Command for Args {
     async fn runner(self, ctx: &impl ScoopContext) -> Result<(), anyhow::Error> {
-        let (bucket, raw_pattern) = if let Some((bucket, raw_pattern)) =
-            self.pattern.split_once('/')
-        {
-            warning!("bucket/package syntax is deprecated. Please use the --bucket flag instead");
-            (
-                Some({
-                    // Bucket flag overrides bucket/package syntax
-                    if let Some(bucket) = self.bucket {
-                        warning!("Using bucket flag instead of bucket/package syntax");
-                        bucket
-                    } else {
-                        bucket.to_string()
-                    }
-                }),
-                raw_pattern.to_string(),
-            )
-        } else {
-            (self.bucket, self.pattern)
-        };
+        let (bucket, raw_pattern) =
+            if let Some((bucket, raw_pattern)) = self.pattern.split_once('/') {
+                warn!("bucket/package syntax is deprecated. Please use the --bucket flag instead");
+                (
+                    Some({
+                        // Bucket flag overrides bucket/package syntax
+                        if let Some(bucket) = self.bucket {
+                            warn!("Using bucket flag instead of bucket/package syntax");
+                            bucket
+                        } else {
+                            bucket.to_string()
+                        }
+                    }),
+                    raw_pattern.to_string(),
+                )
+            } else {
+                (self.bucket, self.pattern)
+            };
 
         let pattern = {
             Regex::new(&format!(

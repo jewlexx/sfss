@@ -1,5 +1,5 @@
 use clap::Parser;
-use futures::{stream::FuturesUnordered, TryFutureExt, TryStreamExt};
+use futures::{stream::FuturesUnordered, StreamExt, TryFutureExt, TryStreamExt};
 use sprinkles::{
     contexts::ScoopContext,
     packages::reference::{manifest, package},
@@ -61,8 +61,15 @@ impl super::Command for Args {
                 })
             })
             .collect::<FuturesUnordered<_>>()
-            .try_collect::<Vec<_>>()
-            .await?;
+            .collect::<Vec<_>>()
+            .await;
+
+        for result in cleanup_tasks {
+            #[allow(if_let_rescope)]
+            if let Err(error) = result {
+                error!("Failed to cleanup app: {error}");
+            }
+        }
 
         unimplemented!()
     }
