@@ -1,13 +1,17 @@
-use clap::Parser;
+use std::{path::Path, str::FromStr};
+
+use clap::{builder::OsStr, Parser};
 use futures::{stream::FuturesUnordered, StreamExt, TryFutureExt, TryStreamExt};
 use sprinkles::{
     contexts::ScoopContext,
     packages::reference::{manifest, package},
+    version::Version,
 };
 
 use crate::{
     abandon,
     handlers::{AppsDecider, ListApps},
+    logging::macros::ddbg,
 };
 
 #[derive(Debug, Clone, Parser)]
@@ -112,15 +116,16 @@ impl Args {
         let app_handle = app.clone().open_handle(ctx).await.unwrap();
 
         let current_version = app_handle.local_manifest().map(|manifest| {
-            debug!("Cleaning up {app}@{}", manifest.version);
-            manifest.version
+            let version = manifest.version;
+            debug!("Cleaning up {app}@{version}");
+            version
         })?;
 
         if self.cache {
             let cache_path = ctx.cache_path();
 
             while let Some(entry) = tokio::fs::read_dir(&cache_path).await?.next_entry().await? {
-                let path = dbg!(entry.file_name());
+                let cache_entry = CacheEntry::parse_path(ddbg!(entry.path()))?;
             }
         }
 
@@ -130,5 +135,44 @@ impl Args {
         }
          */
         unimplemented!()
+    }
+}
+
+// TODO: Move this into the sprinkles crate
+#[derive(Debug)]
+pub struct CacheEntry {
+    name: String,
+    version: Version,
+    url_hash: String,
+}
+
+impl FromStr for CacheEntry {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::parse_path(s)
+    }
+}
+
+impl CacheEntry {
+    pub fn parse_path(path: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let file_name = path.as_ref();
+
+        let name = file_name
+            .file_stem()
+            .ok_or_else(|| anyhow::anyhow!("no file stem"))?
+            .to_string_lossy();
+
+        let mut parts = name.split('#');
+
+        let name = parts.next().ok_or_else(|| anyhow::anyhow!("no name"))?;
+        let version = parts.next().ok_or_else(|| anyhow::anyhow!("no version"))?;
+        let hash = parts.next().ok_or_else(|| anyhow::anyhow!("no hash"))?;
+
+        Ok(Self {
+            name: name.to_string(),
+            version: Version::new(version),
+            url_hash: hash.to_string(),
+        })
     }
 }
