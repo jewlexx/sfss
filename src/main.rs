@@ -131,7 +131,6 @@ struct Args {
     global: bool,
 
     #[clap(
-        short,
         long,
         global = true,
         help = "Use the specified architecture, if the app and command support it",

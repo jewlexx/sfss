@@ -3,14 +3,18 @@ use std::{path::Path, str::FromStr};
 use anyhow::Context;
 use clap::{builder::OsStr, Parser};
 use futures::{stream::FuturesUnordered, StreamExt, TryFutureExt, TryStreamExt};
+use itertools::Itertools;
 use sprinkles::{
     contexts::ScoopContext,
+    handles::packages::PackageHandle,
     packages::reference::{manifest, package},
+    progress::{indicatif, style, Message},
     version::Version,
 };
 
 use crate::{
     abandon,
+    commands::debug,
     handlers::{AppsDecider, ListApps},
     logging::macros::ddbg,
 };
@@ -116,11 +120,18 @@ impl Args {
     ) -> anyhow::Result<()> {
         let app_handle = app.clone().open_handle(ctx).await.unwrap();
 
-        let current_version = app_handle.local_manifest().map(|manifest| {
-            let version = manifest.version;
-            debug!("Cleaning up {app}@{version}");
-            version
-        })?;
+        let current_version = app_handle.local_version()?;
+
+        let versions = app_handle.list_versions()?;
+
+        let old_versions = versions
+            .into_iter()
+            .filter(|version| version.version() != current_version.as_str())
+            .collect_vec();
+
+        let pb = indicatif::ProgressBar::new(old_versions.len() as u64);
+
+        pb.set_style(style(None, Some(Message::prefix())));
 
         if self.cache {
             let cache_path = ctx.cache_path();
@@ -129,16 +140,37 @@ impl Args {
                 let cache_entry = CacheEntry::parse_path(ddbg!(entry.path()))?;
 
                 if Some(cache_entry.name) == app.name() && cache_entry.version != current_version {
+                    pb.inc_length(1);
                     debug!(
                         "Found matching outdated cache entry: {}",
                         cache_entry.url_hash
                     );
-                    std::fs::remove_file(ddbg!(entry.path()))?;
+
+                    if self.dry_run {
+                        debug!("Would remove cache entry: {}", cache_entry.url_hash);
+                    } else {
+                        std::fs::remove_file(ddbg!(entry.path()))?;
+                    }
+
                     debug!("Removed cache entry: {}", cache_entry.url_hash);
+                    pb.inc(1);
                 }
             }
 
             debug!("Cleaned up old cache entries");
+        }
+
+        for version in old_versions {
+            debug!("Cleaning up {app}@{}", version.version());
+            if self.dry_run {
+                debug!(
+                    "Would remove old version directory: {}",
+                    version.path().display()
+                );
+            } else {
+                std::fs::remove_dir_all(version.path())?;
+            }
+            pb.inc(1);
         }
 
         unimplemented!()
