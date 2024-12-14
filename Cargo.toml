@@ -61,6 +61,7 @@ console = { version = "0.15", features = ["windows-console-colors"] }
 crossterm = "0.28"
 derive_more = { version = "1.0", features = ["deref_mut", "deref", "as_ref"] }
 dialoguer = "0.11"
+dirs = "5.0"
 futures = "0.3"
 heck = "0.5"
 human-panic = "2.0"
@@ -69,18 +70,18 @@ konst = "0.3"
 log = { version = "0.4", features = ["std"] }
 open = "5.1"
 parking_lot = "0.12"
-prodash = { version = "29.0.0", features = [
+prodash = { version = "29.0", features = [
     "render-line",
     "render-line-crossterm",
 ] }
 quork = "0.8"
-rand = "0.8.5"
+rand = "0.8"
 ratatui = { version = "0.29", features = ["macros"] }
 rayon = "1.10"
 regex = "1.10"
-rotenv_codegen = "0.15.0"
+rotenv_codegen = "0.15"
 semver = "1.0"
-sentry = "0.35.0"
+sentry = "0.35"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
 shadow-rs = "0.36"

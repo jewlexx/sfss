@@ -9,6 +9,7 @@
 
 mod calm_panic;
 mod commands;
+mod config;
 mod diagnostics;
 mod errors;
 mod limits;
@@ -138,6 +139,14 @@ struct Args {
         help = "Assume \"yes\" as answer to prompts"
     )]
     assume_yes: bool,
+
+    #[clap(
+        global = true,
+        long,
+        help = "Disable telemetry for this session",
+        env = "SFSU_TELEMETRY_DISABLED"
+    )]
+    no_telemetry: bool,
 }
 
 pub(crate) static COLOR_ENABLED: AtomicBool = AtomicBool::new(true);
@@ -159,15 +168,25 @@ rotenv_codegen::dotenv_module!(filename = ".env", visibility = "pub(crate)");
 
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> anyhow::Result<()> {
-    let _guard = sentry::init((
-        dotenv_vars::SENTRY_URL,
-        sentry::ClientOptions {
-            release: sentry::release_name!(),
-            ..Default::default()
-        },
-    ));
+    let mut sfsu_config = config::Config::load().unwrap_or_default();
 
-    panic!("Everything is on fire!");
+    let _guard = if sfsu_config.telemetry.enabled {
+        if sfsu_config.telemetry.notified_at.is_none() {
+            sfsu_config.enable_telemetry();
+            sfsu_config.save()?;
+            println!("SFSU now collects anonymous telemetry regarding usage. This is to help us understand how people are using the tool, and to help us prioritize features, and fix bugs quicker. You can opt-out of telemetry by setting the `SFSU_TELEMETRY_DISABLED` environment variable to `1`, by passing the `--no-telemetry` flag, or running `sfsu telemetry off`. Read more about telemetry at https://github.com/winpax/sfsu/blob/trunk/TELEMETRY.md");
+        }
+
+        Some(sentry::init((
+            dotenv_vars::SENTRY_URL,
+            sentry::ClientOptions {
+                release: sentry::release_name!(),
+                ..Default::default()
+            },
+        )))
+    } else {
+        None
+    };
 
     logging::panics::handle();
 

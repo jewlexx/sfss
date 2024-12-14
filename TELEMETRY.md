@@ -41,6 +41,6 @@ Telemetry is collected using [Sentry](https://sentry.io/).
 
 ## Opt-out
 
-You can opt-out of telemetry by setting the `SFSU_TELEMETRY` environment variable to `0`, by passing the `--no-telemetry` flag, or running `sfsu telemetry off`.
+You can opt-out of telemetry by setting the `SFSU_TELEMETRY_DISABLED` environment variable to `1`, by passing the `--no-telemetry` flag, or running `sfsu telemetry off`.
 
 Thank you for helping us make sfsu better!

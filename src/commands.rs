@@ -12,6 +12,7 @@ mod hook;
 mod outdated;
 mod search;
 mod status;
+mod telemetry;
 mod update;
 mod virustotal;
 
@@ -154,6 +155,9 @@ pub enum Commands {
     #[stripped(ignore)]
     #[cfg(debug_assertions)]
     Debug(debug::Args),
+
+    #[stripped(ignore)]
+    Telemetry(telemetry::Args),
 }
 
 impl Runnable for Commands {
@@ -192,6 +196,7 @@ impl Runnable for Commands {
             Commands::Credits(args) => args.run(ctx).await,
             #[cfg(debug_assertions)]
             Commands::Debug(args) => args.run(ctx).await,
+            Commands::Telemetry(args) => args.run(ctx).await,
         }
     }
 }
