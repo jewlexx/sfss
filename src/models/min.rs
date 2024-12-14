@@ -87,19 +87,16 @@ impl Info {
         let app_current = path.join("current");
 
         let (manifest_broken, manifest) =
-            if let Ok(manifest) = Manifest::from_path(app_current.join("manifest.json")) {
-                (false, manifest)
-            } else {
-                (true, Manifest::default())
+            match Manifest::from_path(app_current.join("manifest.json")) {
+                Ok(manifest) => (false, manifest),
+                _ => (true, Manifest::default()),
             };
 
-        let (install_manifest_broken, install_manifest) = if let Ok(install_manifest) =
-            InstallManifest::from_path(app_current.join("install.json"))
-        {
-            (false, install_manifest)
-        } else {
-            (true, InstallManifest::default())
-        };
+        let (install_manifest_broken, install_manifest) =
+            match InstallManifest::from_path(app_current.join("install.json")) {
+                Ok(install_manifest) => (false, install_manifest),
+                _ => (true, InstallManifest::default()),
+            };
 
         let broken = manifest_broken || install_manifest_broken;
 

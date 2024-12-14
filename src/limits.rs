@@ -42,12 +42,15 @@ impl RateLimiter {
 
         let mut remaining = self.remaining.lock();
 
-        if let Some(new_remaining) = remaining.checked_sub(delta) {
-            *remaining = new_remaining;
-            Err(new_remaining)
-        } else {
-            *remaining = self.reset;
-            Ok(())
+        match remaining.checked_sub(delta) {
+            Some(new_remaining) => {
+                *remaining = new_remaining;
+                Err(new_remaining)
+            }
+            _ => {
+                *remaining = self.reset;
+                Ok(())
+            }
         }
     }
 
@@ -73,6 +76,7 @@ impl RateLimitWait {
 
         thread::spawn(move || loop {
             thread::sleep(timeout);
+            #[allow(if_let_rescope)]
             if let Some(waker) = waker.lock().clone() {
                 waker.wake();
             }

@@ -1,5 +1,5 @@
 [toolchain]
-channel = "stable"
+channel = "nightly-2024-11-27"
 targets = [
     "aarch64-pc-windows-msvc",
     "i686-pc-windows-msvc",

@@ -53,7 +53,7 @@ impl<'de> Deserialize<'de> for NicerBool {
 }
 
 struct NicerBoolVisitor;
-impl<'de> Visitor<'de> for NicerBoolVisitor {
+impl Visitor<'_> for NicerBoolVisitor {
     type Value = NicerBool;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

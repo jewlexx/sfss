@@ -130,7 +130,9 @@ impl Diagnostics {
         let key = RegKey::predef(HKEY_LOCAL_MACHINE)
             .open_subkey(r"SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths")?;
 
-        Ok(key.open_subkey(scoop_dir).is_ok())
+        let scoop_dir_key = key.open_subkey(scoop_dir);
+
+        Ok(scoop_dir_key.is_ok())
     }
 
     /// Check if the main bucket exists

@@ -42,10 +42,9 @@ impl Args {
 
                     let remote_manifest = bucket.get_manifest(unsafe { app.name() })?;
 
-                    if let Some(info) = Info::from_manifests(&local_manifest, &remote_manifest) {
-                        Ok(info)
-                    } else {
-                        anyhow::bail!("no update available")
+                    match Info::from_manifests(&local_manifest, &remote_manifest) {
+                        Some(info) => Ok(info),
+                        None => anyhow::bail!("no update available"),
                     }
                 } else {
                     anyhow::bail!("no bucket specified")
