@@ -170,7 +170,11 @@ rotenv_codegen::dotenv_module!(filename = ".env", visibility = "pub(crate)");
 async fn main() -> anyhow::Result<()> {
     let mut sfsu_config = config::Config::load().unwrap_or_default();
 
-    let _guard = if sfsu_config.telemetry.enabled {
+    logging::panics::handle();
+
+    let args = Args::parse();
+
+    let _guard = if sfsu_config.telemetry.enabled && !args.no_telemetry {
         if sfsu_config.telemetry.notified_at.is_none() {
             sfsu_config.enable_telemetry();
             sfsu_config.save()?;
@@ -185,12 +189,12 @@ async fn main() -> anyhow::Result<()> {
             },
         )))
     } else {
+        if args.no_telemetry {
+            println!("Telemetry disabled for this session. To disable telemetry permanently run `sfsu telemetry off`");
+        }
+
         None
     };
-
-    logging::panics::handle();
-
-    let args = Args::parse();
 
     let ctx: AnyContext = {
         cfg_if::cfg_if! {
