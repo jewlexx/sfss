@@ -21,6 +21,12 @@ This is to help us understand how people are using the tool, and to help us prio
 - Version
 - Error message
 
+### Logging
+
+- OS
+- Architecture
+- Logs
+
 ## How we use it
 
 We use this data to help us prioritize features, and fix bugs quicker.

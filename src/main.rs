@@ -196,6 +196,8 @@ async fn main() -> anyhow::Result<()> {
         None
     };
 
+    let telemetry_enabled = sfsu_config.telemetry.enabled;
+
     let ctx: AnyContext = {
         cfg_if::cfg_if! {
             if #[cfg(feature = "contexts")] {
@@ -213,6 +215,16 @@ async fn main() -> anyhow::Result<()> {
     });
 
     Logger::init(&ctx, cfg!(debug_assertions) || args.verbose).await?;
+
+    info!("SFSU started");
+    info!(
+        "Telemetry is {}",
+        if telemetry_enabled {
+            "enabled"
+        } else {
+            "disabled"
+        }
+    );
 
     if args.no_color || !std::io::stdout().is_terminal() {
         debug!("Colour disabled globally");

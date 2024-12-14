@@ -60,7 +60,10 @@ impl Logger {
     }
 
     pub async fn init(ctx: &impl ScoopContext, verbose: bool) -> Result<(), log::SetLoggerError> {
-        log::set_boxed_logger(Box::new(Logger::new(ctx, verbose).await))?;
+        let dest_logger = Logger::new(ctx, verbose).await;
+        let sentry_logger = sentry::integrations::log::SentryLogger::with_dest(dest_logger);
+
+        log::set_boxed_logger(Box::new(sentry_logger))?;
         log::set_max_level(Self::LEVEL_FILTER);
 
         debug!("Initialized logger");

@@ -1,7 +1,7 @@
 use anyhow::Context;
-use chrono::DateTime;
+use chrono::NaiveDateTime;
 
-#[derive(Debug, serde::Deserialize, serde::Serialize, Default)]
+#[derive(Debug, Copy, Clone, serde::Deserialize, serde::Serialize, Default)]
 /// SFSU Specific Config
 pub struct Config {
     pub telemetry: Telemetry,
@@ -44,7 +44,7 @@ impl Config {
 
     pub fn enable_telemetry(&mut self) {
         self.telemetry.enabled = true;
-        self.telemetry.notified_at = Some(chrono::Utc::now());
+        self.telemetry.notified_at = Some(chrono::Utc::now().naive_local());
     }
 
     pub fn disable_telemetry(&mut self) {
@@ -52,10 +52,10 @@ impl Config {
     }
 }
 
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, Copy, Clone, serde::Deserialize, serde::Serialize)]
 pub struct Telemetry {
     pub enabled: bool,
-    pub notified_at: Option<DateTime<chrono::Utc>>,
+    pub notified_at: Option<NaiveDateTime>,
 }
 
 impl Default for Telemetry {
