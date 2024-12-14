@@ -78,7 +78,9 @@ rand = "0.8.5"
 ratatui = { version = "0.29", features = ["macros"] }
 rayon = "1.10"
 regex = "1.10"
+rotenv_codegen = "0.15.0"
 semver = "1.0"
+sentry = "0.35.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0", features = ["preserve_order"] }
 shadow-rs = "0.36"

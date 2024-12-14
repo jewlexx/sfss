@@ -155,8 +155,20 @@ impl TryFrom<&Args> for AnyContext {
     }
 }
 
+rotenv_codegen::dotenv_module!(filename = ".env", visibility = "pub(crate)");
+
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> anyhow::Result<()> {
+    let _guard = sentry::init((
+        dotenv_vars::SENTRY_URL,
+        sentry::ClientOptions {
+            release: sentry::release_name!(),
+            ..Default::default()
+        },
+    ));
+
+    panic!("Everything is on fire!");
+
     logging::panics::handle();
 
     let args = Args::parse();
