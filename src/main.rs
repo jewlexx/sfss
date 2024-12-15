@@ -164,8 +164,6 @@ impl TryFrom<&Args> for AnyContext {
     }
 }
 
-rotenv_codegen::dotenv_module!(filename = ".env", visibility = "pub(crate)");
-
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> anyhow::Result<()> {
     let mut sfsu_config = config::Config::load().unwrap_or_default();
@@ -182,7 +180,7 @@ async fn main() -> anyhow::Result<()> {
         }
 
         Some(sentry::init((
-            dotenv_vars::SENTRY_URL,
+            shadow::build_env::SENTRY_URL,
             sentry::ClientOptions {
                 release: sentry::release_name!(),
                 ..Default::default()

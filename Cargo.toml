@@ -100,6 +100,7 @@ criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
 contribs = { git = "https://github.com/winpax/contribs.git", version = "0.1" }
 dotenv = "0.15"
 git2 = "0.19"
+heck = "0.5"
 shadow-rs = "0.36"
 tokio = { version = "1.37", features = ["full"] }
 toml_edit = "0.22"
