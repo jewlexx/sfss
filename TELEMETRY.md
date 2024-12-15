@@ -6,25 +6,11 @@ This is to help us understand how people are using the tool, and to help us prio
 
 ## What we collect
 
-### Usage
-
 - OS
 - Architecture
-- Command line arguments
-- Version
-
-### Errors
-
-- OS
-- Architecture
-- Command line arguments
+- Computer Hostname
 - Version
 - Error message
-
-### Logging
-
-- OS
-- Architecture
 - Logs
 
 ## How we use it

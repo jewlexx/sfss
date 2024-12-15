@@ -84,11 +84,23 @@ pub trait Command {
     async fn runner(self, ctx: &impl ScoopContext<Config = config::Scoop>) -> anyhow::Result<()>;
 }
 
-pub trait CommandRunner: Command {
+pub trait CommandRunner: std::fmt::Debug + Command {
+    fn command_name(&self) -> Option<String> {
+        std::any::type_name::<Self>()
+            .split("::")
+            .last()
+            .map(ToOwned::to_owned)
+    }
+
     async fn run(self, ctx: &impl ScoopContext<Config = config::Scoop>) -> anyhow::Result<()>
     where
         Self: Sized,
     {
+        info!(
+            "Running command: {}",
+            self.command_name().unwrap_or_else(|| "unknown".to_string())
+        );
+
         if let Some(deprecation_warning) = Self::DEPRECATED {
             eprintln_yellow!("{deprecation_warning}\n");
         }
@@ -107,7 +119,7 @@ pub trait CommandRunner: Command {
     }
 }
 
-impl<T: Command> CommandRunner for T {}
+impl<T: std::fmt::Debug + Command> CommandRunner for T {}
 
 // TODO: Replace strip macro with a custom enum
 // Use match to ensure all variants are covered
