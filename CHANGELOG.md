@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support `json` flag in `search` command
 - Warning to help message for `json` flag calling out that it only works for certain commands
 - Progress reporting for `bucket add` command when not using `git` command
+- Optional, anonymous error tracking using sentry
 
 ### Changed
 
