@@ -178,7 +178,7 @@ async fn main() -> anyhow::Result<()> {
         if sfsu_config.telemetry.notified_at.is_none() {
             sfsu_config.enable_telemetry();
             sfsu_config.save()?;
-            println!("SFSU now collects anonymous telemetry regarding usage. This is to help us understand how people are using the tool, and to help us prioritize features, and fix bugs quicker. You can opt-out of telemetry by setting the `SFSU_TELEMETRY_DISABLED` environment variable to `1`, by passing the `--no-telemetry` flag, or running `sfsu telemetry off`. Read more about telemetry at https://github.com/winpax/sfsu/blob/trunk/TELEMETRY.md");
+            println!("SFSU now collects anonymous telemetry regarding errors. This is to help us understand and fix bugs quicker. You can opt-out of telemetry by setting the `SFSU_TELEMETRY_DISABLED` environment variable to `1`, by passing the `--no-telemetry` flag, or running `sfsu telemetry off`. Read more about telemetry at https://github.com/winpax/sfsu/blob/trunk/TELEMETRY.md");
         }
 
         Some(sentry::init((

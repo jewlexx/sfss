@@ -1,8 +1,8 @@
 # sfsu telemetry
 
-We collect totally optional and completely anonymous telemetry regarding usage.
+We collect totally optional and completely anonymous telemetry regarding errors.
 
-This is to help us understand how people are using the tool, and to help us prioritize features, and fix bugs quicker.
+This is to help us understand and fix bugs quicker.
 
 ## What we collect
 
