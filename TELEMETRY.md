@@ -36,3 +36,9 @@ Telemetry is collected using [Sentry](https://sentry.io/).
 You can opt-out of telemetry by setting the `SFSU_TELEMETRY_DISABLED` environment variable to `1`, by passing the `--no-telemetry` flag, or running `sfsu telemetry off`.
 
 Thank you for helping us make sfsu better!
+
+## Discuss
+
+We would love to hear your thoughts on telemetry.
+
+You can post them [on the discussion page](https://github.com/orgs/winpax/discussions/917).
