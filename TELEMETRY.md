@@ -1,6 +1,6 @@
 # sfsu telemetry
 
-We collect totally optional and completely anonymous telemetry regarding errors.
+We collect totally optional telemetry regarding errors, with minimal system information to help diagnose issues.
 
 This is to help us understand and fix bugs quicker.
 
@@ -19,13 +19,7 @@ We use this data to help us prioritize features, and fix bugs quicker.
 
 ## How we protect your data
 
-We don't collect any personally identifiable information.
-
-We don't collect any information about your usage of the tool.
-
-We don't collect any information about your errors.
-
-All data is stored by [Sentry](https://sentry.io/) in the [https://gdpr.eu/what-is-gdpr/].
+All data is stored by [Sentry](https://sentry.io/) in the EU in compliance with [GDPR](https://gdpr.eu/what-is-gdpr/).
 
 ## How we collect it
 
