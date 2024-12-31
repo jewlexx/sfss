@@ -12,6 +12,7 @@ mod hook;
 mod outdated;
 mod search;
 mod status;
+#[path = "commands/update_alias.rs"]
 mod update;
 mod virustotal;
 
@@ -142,7 +143,7 @@ pub enum Commands {
     Depends(depends::Args),
     Status(status::Args),
     #[cfg_attr(not(feature = "v2"), stripped(ignore))]
-    Update(update::Args),
+    Update(update::ArgsWrapper),
     Export(export::Args),
     Checkup(checkup::Args),
     #[cfg(feature = "download")]

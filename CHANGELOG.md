@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `search` command no longer hides `[installed]` label if only searching for installed apps
 - Removed `disable_git` flag from `bucket add` command
   - `bucket add` command now always uses gitoxide to clone the bucket
+- `update` command renamed to `bucket update`
 
 ### Removed
 
