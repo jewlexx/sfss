@@ -1,7 +1,8 @@
-use std::{error::Error, fs::File, io::Write};
+use std::{error::Error, fs::File, io::Write, path::PathBuf};
 
 use contribs::contributors::Contributors;
 use dotenv::dotenv;
+use shadow_rs::Shadow;
 use toml_edit::DocumentMut;
 
 const LOCKFILE: &str = include_str!("./Cargo.lock");
@@ -210,11 +211,15 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     println!("cargo:rerun-if-changed=Cargo.lock");
 
-    let out_path = std::env::var("OUT_DIR")?;
+    let out_path = PathBuf::from(std::env::var("OUT_DIR")?);
 
-    SprinklesVersion::from_doc(&lockfile).print_variables();
+    let version = SprinklesVersion::from_doc(&lockfile);
+    version.print_variables();
 
-    shadow_rs::new_hook(append_shadow_hooks)?;
+    let shadow = shadow_rs::ShadowBuilder::builder()
+        .hook(append_shadow_hooks)
+        .build_pattern(shadow_rs::BuildPattern::RealTime)
+        .build()?;
 
     println!("cargo:rerun-if-changed=sfsu.exe.manifest");
     let mut res = winres::WindowsResource::new();
@@ -231,7 +236,48 @@ fn main() -> Result<(), Box<dyn Error>> {
         major, minor, patch
     );
 
+    std::fs::write(
+        out_path.join("long_version.txt"),
+        get_long_version(&shadow, version),
+    )?;
+
     Ok(())
+}
+
+fn get_long_version(shadow: &Shadow, sprinkles_version: SprinklesVersion<'_>) -> String {
+    let map = &shadow.map;
+
+    let branch = &map.get("BRANCH").expect("missing BRANCH").v;
+    let build_time = &map.get("BUILD_TIME").expect("missing BUILD_TIME").v;
+    let pkg_version = &map.get("PKG_VERSION").expect("missing PKG_VERSION").v;
+    let rust_channel = &map.get("RUST_CHANNEL").expect("missing RUST_CHANNEL").v;
+    let rust_version = &map.get("RUST_VERSION").expect("missing RUST_VERSION").v;
+    let short_commit = &map.get("SHORT_COMMIT").expect("missing SHORT_COMMIT").v;
+    let tag = &map.get("TAG").expect("missing TAG").v;
+
+    let sprinkles_git_source = sprinkles_version.source;
+    let sprinkles_git_rev = sprinkles_version.git_rev;
+    let sprinkles_version = sprinkles_version.version;
+    let sprinkles_rev = if sprinkles_git_source == "true" {
+        format!(" (git rev: {})", sprinkles_git_rev.unwrap())
+    } else {
+        " (crates.io published version)".to_string()
+    };
+
+    let libgit2_version = git2::Version::get();
+
+    let (major, minor, patch) = libgit2_version.libgit2_version();
+
+    format!(
+        r#"{pkg_version}
+sprinkles {sprinkles_version}{sprinkles_rev}
+branch:{branch}
+tag:{tag}
+commit_hash:{short_commit}
+build_time:{build_time}
+build_env:{rust_version},{rust_channel}
+libgit2:{major}.{minor}.{patch}"#
+    )
 }
 
 fn append_shadow_hooks(mut file: &File) -> shadow_rs::SdResult<()> {

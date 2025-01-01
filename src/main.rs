@@ -40,40 +40,7 @@ use validations::Validate;
 shadow_rs::shadow!(shadow);
 
 mod versions {
-    #![allow(clippy::needless_raw_string_hashes)]
-
-    use konst::eq_str;
-
-    // TODO: Move this into build script
-    pub const SFSU_LONG_VERSION: &str = {
-        use crate::shadow::{
-            BRANCH, BUILD_TIME, PKG_VERSION, RUST_CHANNEL, RUST_VERSION, SHORT_COMMIT, TAG,
-        };
-        use shadow_rs::formatcp;
-
-        const LIBGIT2_VERSION: &str = env!("LIBGIT2_VERSION");
-
-        const SPRINKLES_VERSION: &str = env!("SPRINKLES_VERSION");
-        const SPRINKLES_GIT_SOURCE: &str = env!("SPRINKLES_GIT_SOURCE");
-        const SPRINKLES_GIT_REV: &str = env!("SPRINKLES_GIT_REV");
-
-        const SPRINKLES_REV: &str = if eq_str(SPRINKLES_GIT_SOURCE, "true") {
-            formatcp!(" (git rev: {SPRINKLES_GIT_REV})")
-        } else {
-            " (crates.io published version)"
-        };
-
-        formatcp!(
-            r#"{PKG_VERSION}
-sprinkles {SPRINKLES_VERSION}{SPRINKLES_REV}
-branch:{BRANCH}
-tag:{TAG}
-commit_hash:{SHORT_COMMIT}
-build_time:{BUILD_TIME}
-build_env:{RUST_VERSION},{RUST_CHANNEL}
-libgit2:{LIBGIT2_VERSION}"#
-        )
-    };
+    pub const SFSU_LONG_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/long_version.txt"));
 }
 
 #[macro_use]
