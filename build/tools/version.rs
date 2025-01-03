@@ -1,5 +1,6 @@
 use shadow_rs::Shadow;
-use toml_edit::DocumentMut;
+
+use super::lock::Lockfile;
 
 #[derive(Debug, Copy, Clone)]
 pub struct SprinklesVersion<'a> {
@@ -9,16 +10,8 @@ pub struct SprinklesVersion<'a> {
 }
 
 impl<'a> SprinklesVersion<'a> {
-    pub fn from_doc(doc: &'a DocumentMut) -> Self {
-        let sprinkles = doc["package"]
-            .as_array_of_tables()
-            .unwrap()
-            .iter()
-            .find(|table| {
-                let pp = table["name"].as_str().unwrap();
-                pp == "sprinkles-rs"
-            })
-            .unwrap();
+    pub fn from_doc(doc: &'a Lockfile) -> Self {
+        let sprinkles = doc.get_package("sprinkles-rs").unwrap();
 
         let version = sprinkles.get("version").unwrap().as_str().unwrap();
         let source = sprinkles.get("source").unwrap().as_str().unwrap();
