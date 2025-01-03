@@ -106,9 +106,9 @@ fn append_shadow_hooks(mut file: &File) -> shadow_rs::SdResult<()> {
 
     let lockfile = Lockfile::new();
 
-    writeln!(file, "{}", lockfile.get_packages())?;
+    lockfile.hook(file)?;
 
-    Colours::colours_hook(file)?;
+    Colours::hook(file)?;
 
     Ok(())
 }

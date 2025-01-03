@@ -1,3 +1,5 @@
+use std::{fs::File, io::Write};
+
 use toml_edit::{DocumentMut, Table};
 
 const LOCKFILE: &str = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/Cargo.lock"));
@@ -43,5 +45,9 @@ impl Lockfile {
                 None
             }
         })
+    }
+
+    pub fn hook(&self, mut file: &File) -> std::io::Result<()> {
+        writeln!(file, "{}", self.get_packages())
     }
 }
