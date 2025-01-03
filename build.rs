@@ -247,36 +247,31 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn get_long_version(shadow: &Shadow, sprinkles_version: SprinklesVersion<'_>) -> String {
     let map = &shadow.map;
 
-    let branch = &map.get("BRANCH").expect("missing BRANCH").v;
-    let build_time = &map.get("BUILD_TIME").expect("missing BUILD_TIME").v;
-    let pkg_version = &map.get("PKG_VERSION").expect("missing PKG_VERSION").v;
-    let rust_channel = &map.get("RUST_CHANNEL").expect("missing RUST_CHANNEL").v;
-    let rust_version = &map.get("RUST_VERSION").expect("missing RUST_VERSION").v;
-    let short_commit = &map.get("SHORT_COMMIT").expect("missing SHORT_COMMIT").v;
-    let tag = &map.get("TAG").expect("missing TAG").v;
-
-    let sprinkles_git_source = sprinkles_version.source;
-    let sprinkles_git_rev = sprinkles_version.git_rev;
-    let sprinkles_version = sprinkles_version.version;
-    let sprinkles_rev = if sprinkles_git_source == "true" {
-        format!(" (git rev: {})", sprinkles_git_rev.unwrap())
+    let sprinkles_rev = if sprinkles_version.source == "true" {
+        format!(" (git rev: {})", sprinkles_version.git_rev.unwrap())
     } else {
         " (crates.io published version)".to_string()
     };
 
-    let libgit2_version = git2::Version::get();
-
-    let (major, minor, patch) = libgit2_version.libgit2_version();
+    let (major, minor, patch) = git2::Version::get().libgit2_version();
 
     format!(
-        r#"{pkg_version}
-sprinkles {sprinkles_version}{sprinkles_rev}
-branch:{branch}
-tag:{tag}
-commit_hash:{short_commit}
-build_time:{build_time}
-build_env:{rust_version},{rust_channel}
-libgit2:{major}.{minor}.{patch}"#
+        "{pkg_version} \n\
+            sprinkles {sprinkles_version}{sprinkles_rev} \n\
+            branch:{branch} \n\
+            tag:{tag} \n\
+            commit_hash:{short_commit} \n\
+            build_time:{build_time} \n\
+            build_env:{rust_version},{rust_channel} \n\
+            libgit2:{major}.{minor}.{patch}",
+        sprinkles_version = sprinkles_version.version,
+        branch = &map.get("BRANCH").expect("missing BRANCH").v,
+        build_time = &map.get("BUILD_TIME").expect("missing BUILD_TIME").v,
+        pkg_version = &map.get("PKG_VERSION").expect("missing PKG_VERSION").v,
+        rust_channel = &map.get("RUST_CHANNEL").expect("missing RUST_CHANNEL").v,
+        rust_version = &map.get("RUST_VERSION").expect("missing RUST_VERSION").v,
+        short_commit = &map.get("SHORT_COMMIT").expect("missing SHORT_COMMIT").v,
+        tag = &map.get("TAG").expect("missing TAG").v,
     )
 }
 
