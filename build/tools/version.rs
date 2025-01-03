@@ -5,7 +5,6 @@ use super::lock::Lockfile;
 #[derive(Debug, Copy, Clone)]
 pub struct SprinklesVersion<'a> {
     version: &'a str,
-    source: &'a str,
     git_rev: Option<&'a str>,
 }
 
@@ -18,27 +17,10 @@ impl<'a> SprinklesVersion<'a> {
 
         Self {
             version,
-            source,
             git_rev: source
                 .starts_with("git+")
                 .then(|| source.split('#').nth(1).unwrap()),
         }
-    }
-
-    pub fn print_variables(&self) {
-        let Self {
-            version,
-            source,
-            git_rev,
-        } = self;
-
-        println!("cargo:rustc-env=SPRINKLES_VERSION={version}");
-        println!("cargo:rustc-env=SPRINKLES_SOURCE={source}");
-        println!("cargo:rustc-env=SPRINKLES_GIT_SOURCE={}", git_rev.is_some());
-        println!(
-            "cargo:rustc-env=SPRINKLES_GIT_REV={}",
-            git_rev.unwrap_or_default()
-        );
     }
 
     pub fn long_version(&self, shadow: &Shadow) -> String {
@@ -74,10 +56,6 @@ impl<'a> SprinklesVersion<'a> {
 
     pub fn version(&self) -> &str {
         self.version
-    }
-
-    pub fn source(&self) -> &str {
-        self.source
     }
 
     pub fn git_rev(&self) -> Option<&str> {
