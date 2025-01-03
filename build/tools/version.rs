@@ -44,8 +44,8 @@ impl<'a> SprinklesVersion<'a> {
     pub fn long_version(&self, shadow: &Shadow) -> String {
         let map = &shadow.map;
 
-        let sprinkles_rev = if self.source() == "true" {
-            format!(" (git rev: {})", self.git_rev().unwrap())
+        let sprinkles_rev = if let Some(git_rev) = self.git_rev() {
+            format!(" (git rev: {})", git_rev)
         } else {
             " (crates.io published version)".to_string()
         };
