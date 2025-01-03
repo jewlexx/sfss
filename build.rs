@@ -149,20 +149,12 @@ impl<'a> SprinklesVersion<'a> {
         let version = sprinkles.get("version").unwrap().as_str().unwrap();
         let source = sprinkles.get("source").unwrap().as_str().unwrap();
 
-        let git_rev = if source.starts_with("git+") {
-            source.split('#').nth(1).unwrap()
-        } else {
-            ""
-        };
-
         Self {
             version,
             source,
-            git_rev: if source.starts_with("git+") {
-                Some(git_rev)
-            } else {
-                None
-            },
+            git_rev: source
+                .starts_with("git+")
+                .then(|| source.split('#').nth(1).unwrap()),
         }
     }
 
@@ -207,19 +199,7 @@ fn write_colours(mut file: &File) -> std::io::Result<()> {
 
 #[allow(unused_variables, unreachable_code)]
 fn main() -> Result<(), Box<dyn Error>> {
-    let lockfile = LOCKFILE.parse::<DocumentMut>().unwrap();
-
-    println!("cargo:rerun-if-changed=Cargo.lock");
-
-    let out_path = PathBuf::from(std::env::var("OUT_DIR")?);
-
-    let version = SprinklesVersion::from_doc(&lockfile);
-    version.print_variables();
-
-    let shadow = shadow_rs::ShadowBuilder::builder()
-        .hook(append_shadow_hooks)
-        .build_pattern(shadow_rs::BuildPattern::RealTime)
-        .build()?;
+    let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
 
     println!("cargo:rerun-if-changed=sfsu.exe.manifest");
     let mut res = winres::WindowsResource::new();
@@ -227,18 +207,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     res.compile().expect("Failed to compile Windows resources");
 
-    let libgit2_version = git2::Version::get();
+    let lockfile = LOCKFILE.parse::<DocumentMut>().unwrap();
+    println!("cargo:rerun-if-changed=Cargo.lock");
 
-    let (major, minor, patch) = libgit2_version.libgit2_version();
-
-    println!(
-        "cargo:rustc-env=LIBGIT2_VERSION={}.{}.{}",
-        major, minor, patch
-    );
+    let shadow = shadow_rs::ShadowBuilder::builder()
+        .hook(append_shadow_hooks)
+        .build_pattern(shadow_rs::BuildPattern::RealTime)
+        .build()?;
 
     std::fs::write(
-        out_path.join("long_version.txt"),
-        get_long_version(&shadow, version),
+        out_dir.join("long_version.txt"),
+        get_long_version(&shadow, SprinklesVersion::from_doc(&lockfile)),
     )?;
 
     Ok(())
