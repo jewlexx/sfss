@@ -2,8 +2,12 @@ use std::{error::Error, fs::File, io::Write, path::PathBuf};
 
 use contribs::contributors::Contributors;
 use dotenv::dotenv;
-use shadow_rs::Shadow;
 use toml_edit::DocumentMut;
+
+#[path = "build/mod.rs"]
+mod build;
+
+use build::tools::version::SprinklesVersion;
 
 const LOCKFILE: &str = include_str!("./Cargo.lock");
 const WIN_MANIFEST: &str = include_str!("./sfsu.exe.manifest");
@@ -127,54 +131,6 @@ fn get_packages(doc: &DocumentMut) -> String {
     format!("pub const PACKAGES: [(&str, &str); {length}] = {items};")
 }
 
-#[derive(Debug, Copy, Clone)]
-struct SprinklesVersion<'a> {
-    version: &'a str,
-    source: &'a str,
-    git_rev: Option<&'a str>,
-}
-
-impl<'a> SprinklesVersion<'a> {
-    fn from_doc(doc: &'a DocumentMut) -> Self {
-        let sprinkles = doc["package"]
-            .as_array_of_tables()
-            .unwrap()
-            .iter()
-            .find(|table| {
-                let pp = table["name"].as_str().unwrap();
-                pp == "sprinkles-rs"
-            })
-            .unwrap();
-
-        let version = sprinkles.get("version").unwrap().as_str().unwrap();
-        let source = sprinkles.get("source").unwrap().as_str().unwrap();
-
-        Self {
-            version,
-            source,
-            git_rev: source
-                .starts_with("git+")
-                .then(|| source.split('#').nth(1).unwrap()),
-        }
-    }
-
-    fn print_variables(&self) {
-        let Self {
-            version,
-            source,
-            git_rev,
-        } = self;
-
-        println!("cargo:rustc-env=SPRINKLES_VERSION={version}");
-        println!("cargo:rustc-env=SPRINKLES_SOURCE={source}");
-        println!("cargo:rustc-env=SPRINKLES_GIT_SOURCE={}", git_rev.is_some());
-        println!(
-            "cargo:rustc-env=SPRINKLES_GIT_REV={}",
-            git_rev.unwrap_or_default()
-        );
-    }
-}
-
 fn write_colours(mut file: &File) -> std::io::Result<()> {
     writeln!(file, "pub mod colours {{")?;
     writeln!(file, "#![allow(unused_imports)]")?;
@@ -217,41 +173,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     std::fs::write(
         out_dir.join("long_version.txt"),
-        get_long_version(&shadow, SprinklesVersion::from_doc(&lockfile)),
+        SprinklesVersion::from_doc(&lockfile).long_version(&shadow),
     )?;
 
     Ok(())
-}
-
-fn get_long_version(shadow: &Shadow, sprinkles_version: SprinklesVersion<'_>) -> String {
-    let map = &shadow.map;
-
-    let sprinkles_rev = if sprinkles_version.source == "true" {
-        format!(" (git rev: {})", sprinkles_version.git_rev.unwrap())
-    } else {
-        " (crates.io published version)".to_string()
-    };
-
-    let (major, minor, patch) = git2::Version::get().libgit2_version();
-
-    format!(
-        "{pkg_version} \n\
-            sprinkles {sprinkles_version}{sprinkles_rev} \n\
-            branch:{branch} \n\
-            tag:{tag} \n\
-            commit_hash:{short_commit} \n\
-            build_time:{build_time} \n\
-            build_env:{rust_version},{rust_channel} \n\
-            libgit2:{major}.{minor}.{patch}",
-        sprinkles_version = sprinkles_version.version,
-        branch = &map.get("BRANCH").expect("missing BRANCH").v,
-        build_time = &map.get("BUILD_TIME").expect("missing BUILD_TIME").v,
-        pkg_version = &map.get("PKG_VERSION").expect("missing PKG_VERSION").v,
-        rust_channel = &map.get("RUST_CHANNEL").expect("missing RUST_CHANNEL").v,
-        rust_version = &map.get("RUST_VERSION").expect("missing RUST_VERSION").v,
-        short_commit = &map.get("SHORT_COMMIT").expect("missing SHORT_COMMIT").v,
-        tag = &map.get("TAG").expect("missing TAG").v,
-    )
 }
 
 fn append_shadow_hooks(mut file: &File) -> shadow_rs::SdResult<()> {
