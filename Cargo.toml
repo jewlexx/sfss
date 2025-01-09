@@ -86,7 +86,7 @@ sprinkles-rs = { version = "0.19", features = ["clap"] }
 tokio = { version = "1.37", features = ["full"] }
 vt3 = "0.7"
 which = "7.0"
-windows = { version = "0.58", features = ["Win32_Storage_FileSystem"] }
+windows = { version = "0.59", features = ["Win32_Storage_FileSystem"] }
 windows-version = "0.1"
 winreg = "0.52"
 
