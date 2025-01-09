@@ -43,7 +43,7 @@ v2 = []
 
 [dependencies]
 anyhow = "1.0"
-bat = { version = "0.24", default-features = false, features = ["regex-onig"] }
+bat = { version = "0.25", default-features = false, features = ["regex-onig"] }
 cfg-if = "1.0"
 chrono = { version = "0.4", features = [
     "clock",
