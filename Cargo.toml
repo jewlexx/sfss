@@ -88,7 +88,7 @@ vt3 = "0.7"
 which = "7.0"
 windows = { version = "0.58", features = ["Win32_Storage_FileSystem"] }
 windows-version = "0.1"
-winreg = "0.52"
+winreg = "0.55"
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
