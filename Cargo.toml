@@ -4,7 +4,7 @@ edition = "2021"
 license = { workspace = true }
 name = "sfsu"
 publish = false
-version = "1.15.0"
+version = "1.15.1"
 
 [workspace]
 members = ["macros"]
