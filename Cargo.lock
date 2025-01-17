@@ -3800,7 +3800,7 @@ dependencies = [
 
 [[package]]
 name = "sfsu"
-version = "1.15.0"
+version = "1.15.1"
 dependencies = [
  "anyhow",
  "async_vt3",
