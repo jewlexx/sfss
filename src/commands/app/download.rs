@@ -62,7 +62,7 @@ impl super::Command for Args {
                     let downloaders = dl.into_iter().map(|dl| {
                         let mp = mp.clone();
                         async move {
-                            match DownloadHandle::new::<AsyncClient>(dl, Some(&mp)).await {
+                            match DownloadHandle::new::<AsyncClient>(dl, Some(&mp), None).await {
                                 Ok(dl) => anyhow::Ok(dl),
                                 Err(e) => match e {
                                     sprinkles::cache::Error::ErrorCode(status) => {
