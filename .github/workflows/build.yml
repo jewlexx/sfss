@@ -126,6 +126,7 @@ jobs:
       - name: Publish to crates.io
         if: ${{ !github.event.release.prerelease }}
         run: cargo publish
+        continue-on-error: true
 
       - name: Build and Package
         if: ${{ !github.event.release.prerelease }}
