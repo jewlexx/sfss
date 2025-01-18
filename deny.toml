@@ -96,6 +96,8 @@ allow = [
     "Zlib",
     "MPL-2.0",
     "LGPL-3.0",
+    "Unicode-3.0",
+    "WTFPL",
     #"Apache-2.0 WITH LLVM-exception",
 ] # List of explicitly allowed licenses
 # See https://spdx.org/licenses/ for list of possible licenses
