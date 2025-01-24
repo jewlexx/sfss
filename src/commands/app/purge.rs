@@ -6,8 +6,8 @@ use rayon::prelude::*;
 use sprinkles::{
     contexts::ScoopContext,
     packages::{
-        reference::{manifest, package},
         Manifest,
+        reference::{manifest, package},
     },
     progress::{indicatif::ProgressBar, style},
 };

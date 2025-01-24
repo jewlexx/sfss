@@ -130,6 +130,7 @@ impl log::Log for Logger {
 
     fn log(&self, record: &log::Record<'_>) {
         if self.enabled(record.metadata()) {
+            let args = record.args();
             match record.metadata().level() {
                 Level::Error => eprintln_red!("ERROR: {}", record.args()),
                 Level::Warn => eprintln_yellow!("WARN: {}", record.args()),

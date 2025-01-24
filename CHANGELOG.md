@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.16.0] - 2025-19-01
+
 ### Fixes
 
 - Fix match arms on disabled commands with certain feature flags
@@ -32,10 +34,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `search` command no longer hides `[installed]` label if only searching for installed apps
 - Removed `disable_git` flag from `bucket add` command
   - `bucket add` command now always uses gitoxide to clone the bucket
+- `update` command renamed to `bucket update`
 
 ### Removed
 
 - `sfsu_macros` crate
+
+## [1.15.1] - 2025-18-01
+
+- Update `sprinkles` to v0.20
+- Update various other dependencies
 
 ## [1.15.0] - 2024-03-11
 
@@ -109,6 +117,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 For older version's changelogs, see the [releases](https://github.com/winpax/sfsu/releases) page.
 
-[Unreleased]: https://github.com/winpax/sfsu/compare/v1.15.0...HEAD
+[Unreleased]: https://github.com/winpax/sfsu/compare/v1.16.0...HEAD
+[1.16.0]: https://github.com/winpax/sfsu/releases/tag/v1.16.0
+[1.15.1]: https://github.com/winpax/sfsu/releases/tag/v1.15.1
 [1.15.0]: https://github.com/winpax/sfsu/releases/tag/v1.15.0
 [1.14.0]: https://github.com/winpax/sfsu/releases/tag/v1.14.0

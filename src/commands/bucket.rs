@@ -4,6 +4,7 @@ pub mod list;
 pub mod outdated;
 pub mod remove;
 pub mod unused;
+pub mod update;
 
 use clap::{Parser, Subcommand};
 
@@ -21,6 +22,7 @@ pub enum Commands {
     Unused(unused::Args),
     #[cfg(not(feature = "v2"))]
     Outdated(outdated::Args),
+    Update(update::Args),
 }
 
 impl Runnable for Commands {
@@ -36,6 +38,7 @@ impl Runnable for Commands {
             Commands::Unused(args) => args.run(ctx).await,
             #[cfg(not(feature = "v2"))]
             Commands::Outdated(args) => args.run(ctx).await,
+            Commands::Update(args) => args.run(ctx).await,
         }
     }
 }

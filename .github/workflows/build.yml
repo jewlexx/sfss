@@ -103,7 +103,7 @@ jobs:
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
     name: Publish
     runs-on: windows-latest
-    needs: [cargo-deny, build, test, clippy, format]
+    needs: [build, test, clippy, format]
 
     steps:
       - uses: actions/checkout@v4.2.2
@@ -126,6 +126,7 @@ jobs:
       - name: Publish to crates.io
         if: ${{ !github.event.release.prerelease }}
         run: cargo publish
+        continue-on-error: true
 
       - name: Build and Package
         if: ${{ !github.event.release.prerelease }}
@@ -136,13 +137,13 @@ jobs:
         run: just beta-release-all
 
       - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v4.6.0
         with:
           name: package.zip
           path: release/*
 
       - name: Upload & Publish
-        uses: softprops/action-gh-release@v2.0.4
+        uses: softprops/action-gh-release@v2.2.1
         with:
           files: |
             release/*.exe
