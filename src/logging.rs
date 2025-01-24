@@ -288,7 +288,7 @@ pub mod macros {
     () => {
         debug!("[{}:{}:{}]", file!(), line!(), column!())
     };
-    ($val:expr $(,)?) => {
+    ($val:expr_2021 $(,)?) => {
         // Use of `match` here is intentional because it affects the lifetimes
         // of temporaries - https://stackoverflow.com/a/48732525/1063961
         match $val {
@@ -299,7 +299,7 @@ pub mod macros {
             }
         }
     };
-    ($($val:expr),+ $(,)?) => {
+    ($($val:expr_2021),+ $(,)?) => {
         ($($crate::dbg!($val)),+,)
     };
 }
