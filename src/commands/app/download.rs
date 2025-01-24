@@ -130,10 +130,9 @@ impl super::Command for Args {
                 } else {
                     eprintln!();
                     let hash = result.computed_hash.no_prefix();
-                    pb.println(
-                        bright_red!("🔓 Hash mismatch: expected {actual_hash}, found {hash}",)
-                            .to_string(),
-                    );
+                    pb.println(bright_red!(
+                        "🔓 Hash mismatch: expected {actual_hash}, found {hash}",
+                    ));
                 }
             }
         }
