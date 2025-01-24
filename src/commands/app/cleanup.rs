@@ -1,14 +1,14 @@
 use std::{path::Path, str::FromStr};
 
 use anyhow::Context;
-use clap::{builder::OsStr, Parser};
-use futures::{stream::FuturesUnordered, StreamExt, TryFutureExt, TryStreamExt};
+use clap::{Parser, builder::OsStr};
+use futures::{StreamExt, TryFutureExt, TryStreamExt, stream::FuturesUnordered};
 use itertools::Itertools;
 use sprinkles::{
     contexts::ScoopContext,
     handles::packages::PackageHandle,
     packages::reference::{manifest, package},
-    progress::{indicatif, style, Message},
+    progress::{Message, indicatif, style},
     version::Version,
 };
 
@@ -60,13 +60,10 @@ impl super::Command for Args {
             .iter()
             .map(|reference| {
                 self.cleanup_app(ctx, reference).map_err(|error| {
-                    anyhow::anyhow!(
-                        "Failed to cleanup {}: {error}",
-                        match &reference.manifest {
-                            manifest::Reference::File(path_buf) => path_buf.display().to_string(),
-                            _ => unreachable!(),
-                        }
-                    )
+                    anyhow::anyhow!("Failed to cleanup {}: {error}", match &reference.manifest {
+                        manifest::Reference::File(path_buf) => path_buf.display().to_string(),
+                        _ => unreachable!(),
+                    })
                 })
             })
             .collect::<FuturesUnordered<_>>()
@@ -74,7 +71,6 @@ impl super::Command for Args {
             .await;
 
         for result in cleanup_tasks {
-            #[allow(if_let_rescope)]
             if let Err(error) = result {
                 error!("Failed to cleanup app: {error}");
             }

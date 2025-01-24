@@ -145,7 +145,6 @@ impl log::Log for Logger {
     }
 
     fn flush(&self) {
-        #[allow(if_let_rescope)]
         if let Some(file) = self.file.as_ref() {
             file.try_clone()
                 .expect("cloning log file")

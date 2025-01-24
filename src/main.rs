@@ -1,9 +1,4 @@
-#![warn(
-    clippy::all,
-    clippy::pedantic,
-    rust_2018_idioms,
-    rust_2024_compatibility
-)]
+#![warn(clippy::all, clippy::pedantic, rust_2018_idioms)]
 // Allow using single match instead of if let
 // This allows us to circumvent the lifetime changes coming in rust 2024
 #![allow(clippy::single_match_else)]
@@ -37,8 +32,8 @@ use clap::Parser;
 use commands::{Commands, Runnable};
 use logging::Logger;
 use sprinkles::{
-    contexts::{AnyContext, ScoopContext, User},
     Architecture,
+    contexts::{AnyContext, ScoopContext, User},
 };
 
 #[cfg(feature = "contexts")]

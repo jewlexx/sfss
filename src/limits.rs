@@ -74,11 +74,12 @@ impl RateLimitWait {
         let waker = this.waker.clone();
         let timeout = this.limiter.reset;
 
-        thread::spawn(move || loop {
-            thread::sleep(timeout);
-            #[allow(if_let_rescope)]
-            if let Some(waker) = waker.lock().clone() {
-                waker.wake();
+        thread::spawn(move || {
+            loop {
+                thread::sleep(timeout);
+                if let Some(waker) = waker.lock().clone() {
+                    waker.wake();
+                }
             }
         });
 
