@@ -9,7 +9,7 @@ const COLOURS_TXT: &str = r#"
 #[doc = concat!("Create a colored string with the `", stringify!(#ident), "` color.")]
 macro_rules! #ident {
     ($($arg:tt)*) => {{
-        console::style(format_args!($($arg)*)).#ident()
+        console::style(format_args!($($arg)*)).#ident().to_string()
     }};
 }
 
@@ -17,7 +17,7 @@ macro_rules! #ident {
 #[doc = concat!("Create a colored string with the `", stringify!(#ident_bright), "` color.")]
 macro_rules! #ident_bright {
     ($($arg:tt)*) => {{
-        $crate::output::colours::#ident!($($arg)*).bright()
+        console::style(format_args!($($arg)*)).#ident().bright().to_string()
     }};
 }
 

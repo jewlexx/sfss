@@ -5,6 +5,7 @@ use clap::Parser;
 use rayon::prelude::*;
 
 use sprinkles::{
+    Architecture,
     buckets::Bucket,
     cache::{DownloadHandle, Handle},
     contexts::ScoopContext,
@@ -18,7 +19,6 @@ use sprinkles::{
         style,
     },
     requests::AsyncClient,
-    Architecture,
 };
 
 use crate::{
@@ -132,12 +132,10 @@ impl super::Command for Args {
                     pb.tick();
                 } else {
                     eprintln!();
+                    let hash = result.computed_hash.no_prefix();
                     pb.println(
-                        bright_red!(
-                            "🔓 Hash mismatch: expected {actual_hash}, found {}",
-                            result.computed_hash.no_prefix()
-                        )
-                        .to_string(),
+                        bright_red!("🔓 Hash mismatch: expected {actual_hash}, found {hash}",)
+                            .to_string(),
                     );
                 }
             }
