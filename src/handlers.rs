@@ -104,9 +104,11 @@ impl Default for CollectionNames {
     }
 }
 
-fn upper_first_char(s: &str) -> Cow<'_, str> {
+pub fn upper_first_char(s: &str) -> Cow<'_, str> {
     let mut chars = s.chars();
-    let first = chars.next().unwrap();
+    let Some(first) = chars.next() else {
+        return Cow::Borrowed(s);
+    };
 
     if first.is_lowercase() {
         Cow::Owned(format!("{}{}", first.to_uppercase(), chars.as_str()))

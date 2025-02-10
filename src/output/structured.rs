@@ -109,7 +109,8 @@ impl Display for Structured {
                             contestants.push(base[i]);
                             contestants.push(element.len() + WALL.len());
 
-                            contestants.into_iter().max().unwrap()
+                            // Safe as we have just pushed at least two items into the vector in the lines above
+                            unsafe { contestants.into_iter().max().unwrap_unchecked() }
                         })
                         .collect()
                 });

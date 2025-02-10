@@ -115,7 +115,7 @@ impl Args {
         ctx: &impl ScoopContext,
         app: &package::Reference,
     ) -> anyhow::Result<()> {
-        let app_handle = app.clone().open_handle(ctx).await.unwrap();
+        let app_handle = app.clone().open_handle(ctx).await?;
 
         let current_version = app_handle.local_version()?;
 
