@@ -25,7 +25,9 @@ impl super::Command for Args {
             println!("✅ Git is installed");
         } else {
             println!("❌ Git is not installed");
-            println!("\tScoop relies on Git to manage itself and its buckets. sfsu does not expressly require git, but it is still recommended to install it, until sfsu can manage itself entirely without Scoop.");
+            println!(
+                "\tScoop relies on Git to manage itself and its buckets. sfsu does not expressly require git, but it is still recommended to install it, until sfsu can manage itself entirely without Scoop."
+            );
             println!("\tRun `scoop install git` to install it");
         }
 
@@ -55,7 +57,9 @@ impl super::Command for Args {
             println!("✅ Windows Developer Mode is enabled");
         } else {
             println!("❌ Windows Developer Mode is not enabled");
-            println!("\tWindows Developer Mode is not enabled. Operations relevant to symlinks may fail without proper rights");
+            println!(
+                "\tWindows Developer Mode is not enabled. Operations relevant to symlinks may fail without proper rights"
+            );
         }
 
         match diagnostics.long_paths {
@@ -65,7 +69,9 @@ impl super::Command for Args {
             }
             LongPathsStatus::Disabled => {
                 println!("❌ Long paths are disabled");
-                println!("\tRun `Set-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\FileSystem' -Name 'LongPathsEnabled' -Value 1` as admin to enable it");
+                println!(
+                    "\tRun `Set-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\FileSystem' -Name 'LongPathsEnabled' -Value 1` as admin to enable it"
+                );
             }
         }
 
@@ -73,7 +79,9 @@ impl super::Command for Args {
             println!("✅ NTFS is the filesystem of the Scoop directory");
         } else {
             println!("❌ NTFS is not the filesystem of the Scoop directory");
-            println!("\tScoop requires an NTFS volume to work! Please point `$env:SCOOP or 'root_path' variable in '~/.config/scoop/config.json' to another Drive with NTFS filesystem");
+            println!(
+                "\tScoop requires an NTFS volume to work! Please point `$env:SCOOP or 'root_path' variable in '~/.config/scoop/config.json' to another Drive with NTFS filesystem"
+            );
         }
 
         for helper in diagnostics.missing_helpers {

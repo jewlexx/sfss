@@ -3,7 +3,7 @@
 use std::fmt::Display;
 
 use derive_more::{AsMut, AsRef, Deref, DerefMut};
-use serde::{de::Visitor, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::Visitor};
 
 #[derive(Debug, Copy, Clone, AsRef, AsMut, Deref, DerefMut)]
 /// A nicer way to display booleans

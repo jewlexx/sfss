@@ -1,13 +1,13 @@
 use std::{str::FromStr, time::Duration};
 
-use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
+use criterion::{BatchSize, Criterion, black_box, criterion_group, criterion_main};
 
 use sprinkles::{
+    Architecture,
     cache::{DownloadHandle, Handle},
     contexts::{ScoopContext, User},
     packages::reference::package,
     requests::{AsyncClient, Client},
-    Architecture,
 };
 
 fn criterion_benchmark(c: &mut Criterion) {

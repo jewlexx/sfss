@@ -7,11 +7,7 @@ pub trait RecoverableError {
     where
         Self: Sized,
     {
-        if self.recoverable() {
-            None
-        } else {
-            Some(self)
-        }
+        if self.recoverable() { None } else { Some(self) }
     }
 }
 

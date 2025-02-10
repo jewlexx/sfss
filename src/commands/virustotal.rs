@@ -4,13 +4,12 @@ use anyhow::Context;
 use clap::{Parser, ValueEnum};
 use rayon::prelude::*;
 use sprinkles::{
-    config,
+    Architecture, config,
     contexts::ScoopContext,
     hash::Hash,
-    packages::{reference::package, CreateManifest, Manifest},
-    progress::{indicatif::ProgressBar, style, ProgressOptions},
+    packages::{CreateManifest, Manifest, reference::package},
+    progress::{ProgressOptions, indicatif::ProgressBar, style},
     requests::USER_AGENT,
-    Architecture,
 };
 
 use crate::{
