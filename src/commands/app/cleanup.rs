@@ -149,7 +149,10 @@ impl Args {
 
             let pb = indicatif::ProgressBar::new(cache_entries.len() as u64);
 
-            pb.set_style(style(None, Some(Message::prefix())));
+            pb.set_style(style(
+                None,
+                Some(Message::prefix().with_message(&format!("Cleaning up {app} cache"))),
+            ));
 
             for (path, cache_entry) in cache_entries {
                 debug!(
@@ -174,7 +177,10 @@ impl Args {
 
         let pb = indicatif::ProgressBar::new(old_versions.len() as u64);
 
-        pb.set_style(style(None, Some(Message::prefix())));
+        pb.set_style(style(
+            None,
+            Some(Message::prefix().with_message(&format!("Cleaning up {app} versions"))),
+        ));
 
         for version in old_versions {
             debug!("Cleaning up {app}@{}", version.version());
