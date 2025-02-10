@@ -1,12 +1,10 @@
 use std::{path::Path, str::FromStr};
 
-use anyhow::Context;
-use clap::{Parser, builder::OsStr};
-use futures::{StreamExt, TryFutureExt, TryStreamExt, stream::FuturesUnordered};
+use clap::Parser;
+use futures::{StreamExt, TryFutureExt, stream::FuturesUnordered};
 use itertools::Itertools;
 use sprinkles::{
     contexts::ScoopContext,
-    handles::packages::PackageHandle,
     packages::reference::{manifest, package},
     progress::{Message, indicatif, style},
     version::Version,
@@ -14,9 +12,9 @@ use sprinkles::{
 
 use crate::{
     abandon,
-    commands::debug,
     handlers::{AppsDecider, ListApps},
     logging::macros::ddbg,
+    output::colours::eprintln_green,
 };
 
 #[derive(Debug, Clone, Parser)]
@@ -62,7 +60,10 @@ impl super::Command for Args {
                 self.cleanup_app(ctx, reference).map_err(|error| {
                     anyhow::anyhow!("Failed to cleanup {}: {error}", match &reference.manifest {
                         manifest::Reference::File(path_buf) => path_buf.display().to_string(),
-                        _ => unreachable!(),
+                        manifest::Reference::BucketNamePair { bucket, name } =>
+                            format!("{bucket}/{name}"),
+                        manifest::Reference::Name(name) => name.clone(),
+                        manifest::Reference::Url(url) => url.to_string(),
                     })
                 })
             })
@@ -76,7 +77,7 @@ impl super::Command for Args {
             }
         }
 
-        unimplemented!()
+        Ok(())
     }
 }
 
@@ -125,36 +126,53 @@ impl Args {
             .filter(|version| version.version() != current_version.as_str())
             .collect_vec();
 
-        let pb = indicatif::ProgressBar::new(old_versions.len() as u64);
-
-        pb.set_style(style(None, Some(Message::prefix())));
-
+        // Remove old cache entries
         if self.cache {
             let cache_path = ctx.cache_path();
-
-            for entry in std::fs::read_dir(&cache_path)?.filter_map(Result::ok) {
-                let cache_entry = CacheEntry::parse_path(ddbg!(entry.path()))?;
-
-                if Some(cache_entry.name) == app.name() && cache_entry.version != current_version {
-                    pb.inc_length(1);
-                    debug!(
-                        "Found matching outdated cache entry: {}",
-                        cache_entry.url_hash
-                    );
-
-                    if self.dry_run {
-                        debug!("Would remove cache entry: {}", cache_entry.url_hash);
+            let cache_entries = std::fs::read_dir(&cache_path)?
+                .filter_map(Result::ok)
+                .filter_map(|entry| {
+                    let Ok(cache_entry) = CacheEntry::parse_path(ddbg!(entry.path())) else {
+                        return None;
+                    };
+                    if Some(&cache_entry.name) == app.name().as_ref()
+                        && cache_entry.version != current_version
+                    {
+                        Some((entry.path(), cache_entry))
                     } else {
-                        std::fs::remove_file(ddbg!(entry.path()))?;
+                        None
                     }
+                })
+                .collect_vec();
 
-                    debug!("Removed cache entry: {}", cache_entry.url_hash);
-                    pb.inc(1);
+            let pb = indicatif::ProgressBar::new(cache_entries.len() as u64);
+
+            pb.set_style(style(None, Some(Message::prefix())));
+
+            for (path, cache_entry) in cache_entries {
+                debug!(
+                    "Found matching outdated cache entry: {}",
+                    cache_entry.url_hash
+                );
+
+                if self.dry_run {
+                    debug!("Would remove cache entry: {}", cache_entry.url_hash);
+                } else {
+                    std::fs::remove_file(ddbg!(path))?;
                 }
+
+                debug!("Removed cache entry: {}", cache_entry.url_hash);
+                pb.inc(1);
             }
 
             debug!("Cleaned up old cache entries");
+
+            pb.finish_with_message("Cleaned up old cache entries");
         }
+
+        let pb = indicatif::ProgressBar::new(old_versions.len() as u64);
+
+        pb.set_style(style(None, Some(Message::prefix())));
 
         for version in old_versions {
             debug!("Cleaning up {app}@{}", version.version());
@@ -169,7 +187,11 @@ impl Args {
             pb.inc(1);
         }
 
-        unimplemented!()
+        pb.finish_with_message("Cleaned up old versions");
+
+        eprintln_green!("All squeaky clean!!");
+
+        Ok(())
     }
 }
 
