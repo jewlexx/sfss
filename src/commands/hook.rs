@@ -88,10 +88,10 @@ impl super::Command for Args {
                 }
 
                 println!(
-                        "\n# To add this to your config, run `sfsu hook --shell {shell} | save ~/.cache/sfsu.nu`\n\
+                    "\n# To add this to your config, run `sfsu hook --shell {shell} | save ~/.cache/sfsu.nu`\n\
                         # And then in your {shell_config} add the following line to the end:\n\
                         #   source ~/.cache/sfsu.nu"
-                    );
+                );
             }
         }
 

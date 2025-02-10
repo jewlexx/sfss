@@ -8,8 +8,8 @@ use sprinkles::{
     buckets::Bucket,
     contexts::ScoopContext,
     packages::{
-        reference::{manifest, package},
         Manifest, Result,
+        reference::{manifest, package},
     },
 };
 

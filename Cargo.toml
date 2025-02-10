@@ -59,7 +59,7 @@ clap = { version = "4.5", features = [
 ] }
 console = { version = "0.15", features = ["windows-console-colors"] }
 crossterm = "0.28"
-derive_more = { version = "1.0", features = ["deref_mut", "deref", "as_ref"] }
+derive_more = { version = "2.0", features = ["deref_mut", "deref", "as_ref"] }
 dialoguer = "0.11"
 futures = "0.3"
 heck = "0.5"
@@ -74,7 +74,7 @@ prodash = { version = "29.0", features = [
     "render-line-crossterm",
 ] }
 quork = "0.8"
-rand = "0.8"
+rand = "0.9"
 ratatui = { version = "0.29", features = ["macros"] }
 rayon = "1.10"
 regex = "1.10"
