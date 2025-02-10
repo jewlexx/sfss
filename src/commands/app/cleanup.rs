@@ -147,55 +147,63 @@ impl Args {
                 })
                 .collect_vec();
 
-            let pb = indicatif::ProgressBar::new(cache_entries.len() as u64);
+            if cache_entries.is_empty() {
+                debug!("No matching cache entries found");
+            } else {
+                let pb = indicatif::ProgressBar::new(cache_entries.len() as u64);
+
+                pb.set_style(style(
+                    None,
+                    Some(Message::prefix().with_message(&format!("Cleaning up {app} cache"))),
+                ));
+
+                for (path, cache_entry) in cache_entries {
+                    debug!(
+                        "Found matching outdated cache entry: {}",
+                        cache_entry.url_hash
+                    );
+
+                    if self.dry_run {
+                        debug!("Would remove cache entry: {}", cache_entry.url_hash);
+                    } else {
+                        std::fs::remove_file(ddbg!(path))?;
+                    }
+
+                    debug!("Removed cache entry: {}", cache_entry.url_hash);
+                    pb.inc(1);
+                }
+
+                debug!("Cleaned up old cache entries");
+
+                pb.finish_with_message(format!("Cleaned up old cache entries for {app}"));
+            }
+        }
+
+        if old_versions.is_empty() {
+            debug!("No matching versions found");
+        } else {
+            let pb = indicatif::ProgressBar::new(old_versions.len() as u64);
 
             pb.set_style(style(
                 None,
-                Some(Message::prefix().with_message(&format!("Cleaning up {app} cache"))),
+                Some(Message::prefix().with_message(&format!("Cleaning up {app} versions"))),
             ));
 
-            for (path, cache_entry) in cache_entries {
-                debug!(
-                    "Found matching outdated cache entry: {}",
-                    cache_entry.url_hash
-                );
-
+            for version in old_versions {
+                debug!("Cleaning up {app}@{}", version.version());
                 if self.dry_run {
-                    debug!("Would remove cache entry: {}", cache_entry.url_hash);
+                    debug!(
+                        "Would remove old version directory: {}",
+                        version.path().display()
+                    );
                 } else {
-                    std::fs::remove_file(ddbg!(path))?;
+                    std::fs::remove_dir_all(version.path())?;
                 }
-
-                debug!("Removed cache entry: {}", cache_entry.url_hash);
                 pb.inc(1);
             }
 
-            debug!("Cleaned up old cache entries");
-
-            pb.finish_with_message(format!("Cleaned up old cache entries for {app}"));
+            pb.finish_with_message(format!("Cleaned up old versions for {app}"));
         }
-
-        let pb = indicatif::ProgressBar::new(old_versions.len() as u64);
-
-        pb.set_style(style(
-            None,
-            Some(Message::prefix().with_message(&format!("Cleaning up {app} versions"))),
-        ));
-
-        for version in old_versions {
-            debug!("Cleaning up {app}@{}", version.version());
-            if self.dry_run {
-                debug!(
-                    "Would remove old version directory: {}",
-                    version.path().display()
-                );
-            } else {
-                std::fs::remove_dir_all(version.path())?;
-            }
-            pb.inc(1);
-        }
-
-        pb.finish_with_message(format!("Cleaned up old versions for {app}"));
 
         Ok(())
     }
