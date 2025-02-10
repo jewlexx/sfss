@@ -7,19 +7,19 @@ use std::{
 
 use clap::Parser;
 use crossterm::{
-    event::{self, Event, KeyCode},
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
+    event::{self, Event, KeyCode},
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use itertools::Itertools;
 use parking_lot::Mutex;
 use ratatui::{
+    Frame, Terminal,
     backend::CrosstermBackend,
     layout::Alignment,
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
     widgets::{Block, Borders, List},
-    Frame, Terminal,
 };
 use serde::Serialize;
 use sprinkles::contexts::ScoopContext;

@@ -2,13 +2,13 @@ use clap::Parser;
 use itertools::Itertools;
 
 use sprinkles::{
+    Architecture,
     contexts::ScoopContext,
     packages::{
+        Manifest, MergeDefaults,
         models::manifest::{NestedArray, SingleOrArray, StringArray},
         reference::package,
-        Manifest, MergeDefaults,
     },
-    Architecture,
 };
 
 use crate::{

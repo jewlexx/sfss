@@ -7,11 +7,11 @@ use clap::Parser;
 use regex::Regex;
 
 use sprinkles::{
+    Architecture,
     buckets::Bucket,
     contexts::ScoopContext,
     packages::{Manifest, MergeDefaults, SearchMode},
     version::Version,
-    Architecture,
 };
 
 use crate::{

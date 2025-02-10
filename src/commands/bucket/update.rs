@@ -11,8 +11,9 @@ use sprinkles::{
     contexts::ScoopContext,
     git::{self, Repo},
     progress::{
+        Message, ProgressOptions,
         indicatif::{MultiProgress, ProgressBar, ProgressFinish, ProgressStyle},
-        style, Message, ProgressOptions,
+        style,
     },
 };
 

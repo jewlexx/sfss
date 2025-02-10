@@ -14,7 +14,9 @@ pub struct ArgsWrapper {
 
 impl super::Command for ArgsWrapper {
     async fn runner(self, ctx: &impl ScoopContext<Config = config::Scoop>) -> anyhow::Result<()> {
-        eprintln_yellow!("Updating buckets has been renamed to `bucket update`. Updating apps is not yet supported and will be added in a future release.");
+        eprintln_yellow!(
+            "Updating buckets has been renamed to `bucket update`. Updating apps is not yet supported and will be added in a future release."
+        );
         bucket::update::Args::runner(self.args, ctx).await
     }
 }
