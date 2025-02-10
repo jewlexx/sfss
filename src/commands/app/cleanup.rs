@@ -77,6 +77,8 @@ impl super::Command for Args {
             }
         }
 
+        eprintln_green!("All squeaky clean!!");
+
         Ok(())
     }
 }
@@ -167,7 +169,7 @@ impl Args {
 
             debug!("Cleaned up old cache entries");
 
-            pb.finish_with_message("Cleaned up old cache entries");
+            pb.finish_with_message(format!("Cleaned up old cache entries for {app}"));
         }
 
         let pb = indicatif::ProgressBar::new(old_versions.len() as u64);
@@ -187,9 +189,7 @@ impl Args {
             pb.inc(1);
         }
 
-        pb.finish_with_message("Cleaned up old versions");
-
-        eprintln_green!("All squeaky clean!!");
+        pb.finish_with_message(format!("Cleaned up old versions for {app}"));
 
         Ok(())
     }
