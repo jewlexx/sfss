@@ -29,8 +29,8 @@ use clap::Parser;
 use commands::{Commands, Runnable};
 use logging::Logger;
 use sprinkles::{
-    contexts::{AnyContext, ScoopContext, User},
     Architecture,
+    contexts::{AnyContext, ScoopContext, User},
 };
 
 #[cfg(feature = "contexts")]
