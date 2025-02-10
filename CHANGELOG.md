@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `app cleanup` command for removing old versions and cache entries
+
 ## [1.16.0] - 2025-19-01
 
 ### Fixes
