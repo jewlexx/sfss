@@ -6,7 +6,11 @@ use itertools::Itertools;
 use sprinkles::{
     contexts::ScoopContext,
     packages::reference::{manifest, package},
-    progress::{Message, indicatif, style},
+    progress::{
+        Message,
+        indicatif::{MultiProgress, ProgressBar},
+        style,
+    },
     version::Version,
 };
 
@@ -54,18 +58,25 @@ impl super::Command for Args {
             Some(apps) => apps,
         };
 
+        let mp = MultiProgress::new();
+
         let cleanup_tasks = cleanup_apps
             .iter()
             .map(|reference| {
-                self.cleanup_app(ctx, reference).map_err(|error| {
-                    anyhow::anyhow!("Failed to cleanup {}: {error}", match &reference.manifest {
-                        manifest::Reference::File(path_buf) => path_buf.display().to_string(),
-                        manifest::Reference::BucketNamePair { bucket, name } =>
-                            format!("{bucket}/{name}"),
-                        manifest::Reference::Name(name) => name.clone(),
-                        manifest::Reference::Url(url) => url.to_string(),
+                self.cleanup_app(ctx, reference, mp.clone())
+                    .map_err(|error| {
+                        anyhow::anyhow!(
+                            "Failed to cleanup {}: {error}",
+                            match &reference.manifest {
+                                manifest::Reference::File(path_buf) =>
+                                    path_buf.display().to_string(),
+                                manifest::Reference::BucketNamePair { bucket, name } =>
+                                    format!("{bucket}/{name}"),
+                                manifest::Reference::Name(name) => name.clone(),
+                                manifest::Reference::Url(url) => url.to_string(),
+                            }
+                        )
                     })
-                })
             })
             .collect::<FuturesUnordered<_>>()
             .collect::<Vec<_>>()
@@ -116,6 +127,7 @@ impl Args {
         &self,
         ctx: &impl ScoopContext,
         app: &package::Reference,
+        mp: MultiProgress,
     ) -> anyhow::Result<()> {
         let app_handle = app.clone().open_handle(ctx).await?;
 
@@ -150,7 +162,7 @@ impl Args {
             if cache_entries.is_empty() {
                 debug!("No matching cache entries found");
             } else {
-                let pb = indicatif::ProgressBar::new(cache_entries.len() as u64);
+                let pb = mp.add(ProgressBar::new(cache_entries.len() as u64));
 
                 pb.set_style(style(
                     None,
@@ -182,7 +194,7 @@ impl Args {
         if old_versions.is_empty() {
             debug!("No matching versions found");
         } else {
-            let pb = indicatif::ProgressBar::new(old_versions.len() as u64);
+            let pb = mp.add(ProgressBar::new(old_versions.len() as u64));
 
             pb.set_style(style(
                 None,
