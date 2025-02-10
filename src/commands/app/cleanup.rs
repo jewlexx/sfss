@@ -1,4 +1,4 @@
-use std::{path::Path, str::FromStr};
+use std::{path::Path, str::FromStr, time::Duration};
 
 use clap::Parser;
 use futures::{StreamExt, TryFutureExt, stream::FuturesUnordered};
@@ -84,7 +84,7 @@ impl super::Command for Args {
 
         for result in cleanup_tasks {
             if let Err(error) = result {
-                error!("Failed to cleanup app: {error}");
+                error!("{error}");
             }
         }
 
@@ -129,7 +129,9 @@ impl Args {
         app: &package::Reference,
         mp: MultiProgress,
     ) -> anyhow::Result<()> {
-        let app_handle = app.clone().open_handle(ctx).await?;
+        let Ok(app_handle) = app.clone().open_handle(ctx).await else {
+            return Ok(());
+        };
 
         let current_version = app_handle.local_version()?;
 
@@ -163,6 +165,7 @@ impl Args {
                 debug!("No matching cache entries found");
             } else {
                 let pb = mp.add(ProgressBar::new(cache_entries.len() as u64));
+                pb.enable_steady_tick(Duration::from_millis(100));
 
                 pb.set_style(style(
                     None,
@@ -195,6 +198,7 @@ impl Args {
             debug!("No matching versions found");
         } else {
             let pb = mp.add(ProgressBar::new(old_versions.len() as u64));
+            pb.enable_steady_tick(Duration::from_millis(100));
 
             pb.set_style(style(
                 None,
