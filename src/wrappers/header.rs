@@ -4,6 +4,8 @@ use std::fmt::Display;
 
 use itertools::Itertools;
 
+use crate::handlers::upper_first_char;
+
 #[derive(Debug, Clone)]
 #[must_use = "Lazy. Does nothing until consumed"]
 /// A nicer way to display headers
@@ -22,15 +24,7 @@ impl<T: Display> Display for Header<T> {
             .0
             .to_string()
             .split('_')
-            .map(|word| {
-                if word.starts_with(|c: char| c.is_uppercase()) {
-                    word.to_string()
-                } else {
-                    let mut word: Vec<char> = word.chars().collect();
-                    word[0] = word[0].to_uppercase().nth(0).unwrap();
-                    word.into_iter().collect()
-                }
-            })
+            .map(|word| upper_first_char(word).to_string())
             .join(" ");
 
         write!(f, "{string}")

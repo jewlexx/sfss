@@ -4,15 +4,15 @@ pub mod list;
 pub mod outdated;
 pub mod remove;
 pub mod unused;
+pub mod update;
 
 use clap::{Parser, Subcommand};
 
-use sfsu_macros::Runnable;
 use sprinkles::{config, contexts::ScoopContext};
 
-use super::{Command, CommandRunner};
+use super::{Command, CommandRunner, Runnable};
 
-#[derive(Debug, Clone, Subcommand, Runnable)]
+#[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     Add(add::Args),
     #[clap(alias = "rm")]
@@ -22,6 +22,25 @@ pub enum Commands {
     Unused(unused::Args),
     #[cfg(not(feature = "v2"))]
     Outdated(outdated::Args),
+    Update(update::Args),
+}
+
+impl Runnable for Commands {
+    async fn run(
+        self,
+        ctx: &impl sprinkles::contexts::ScoopContext<Config = sprinkles::config::Scoop>,
+    ) -> anyhow::Result<()> {
+        match self {
+            Commands::Add(args) => args.run(ctx).await,
+            Commands::Remove(args) => args.run(ctx).await,
+            Commands::List(args) => args.run(ctx).await,
+            Commands::Known(args) => args.run(ctx).await,
+            Commands::Unused(args) => args.run(ctx).await,
+            #[cfg(not(feature = "v2"))]
+            Commands::Outdated(args) => args.run(ctx).await,
+            Commands::Update(args) => args.run(ctx).await,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Parser)]

@@ -42,10 +42,9 @@ impl Args {
 
                     let remote_manifest = bucket.get_manifest(unsafe { app.name() })?;
 
-                    if let Some(info) = Info::from_manifests(&local_manifest, &remote_manifest) {
-                        Ok(info)
-                    } else {
-                        anyhow::bail!("no update available")
+                    match Info::from_manifests(&local_manifest, &remote_manifest) {
+                        Some(info) => Ok(info),
+                        None => anyhow::bail!("no update available"),
                     }
                 } else {
                     anyhow::bail!("no bucket specified")
@@ -73,24 +72,6 @@ impl Args {
 
                 println!("{output}");
             } else {
-                // TODO: Add a better way to add colours than this
-                // TODO: p.s this doesnt work atm
-                // use owo_colors::OwoColorize;
-                // let values = values
-                //     .into_par_iter()
-                //     .map(|mut value| {
-                //         if let Some(current) = value.get_mut("Current") {
-                //             *current = current.as_str().unwrap().red().to_string().into();
-                //         }
-
-                //         if let Some(available) = value.get_mut("Available") {
-                //             *available = available.as_str().unwrap().green().to_string().into();
-                //         }
-
-                //         value
-                //     })
-                //     .collect::<Vec<_>>();
-
                 let outputs = Structured::new(&values).with_max_length(30);
 
                 print!("{outputs}");

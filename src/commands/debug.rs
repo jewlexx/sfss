@@ -1,19 +1,28 @@
 use clap::{Parser, Subcommand};
-use sfsu_macros::{Hooks, Runnable};
 use sprinkles::{config, contexts::ScoopContext};
 
-use super::{Command, CommandRunner};
+use super::{Command, CommandRunner, Runnable};
 
 mod save;
 pub mod sizes;
 
-#[derive(Debug, Hooks, Clone, Subcommand, Runnable)]
+#[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     Save(save::Args),
     /// Show the size of each of the sfsu commands
     Sizes(sizes::Args),
 }
 
+impl Runnable for Commands {
+    async fn run(
+        self,
+        ctx: &impl sprinkles::contexts::ScoopContext<Config = sprinkles::config::Scoop>,
+    ) -> anyhow::Result<()> {
+        match self {
+            Commands::Save(args) => args.run(ctx).await,
+        }
+    }
+}
 #[derive(Debug, Clone, Parser)]
 /// Debugging commands
 pub struct Args {

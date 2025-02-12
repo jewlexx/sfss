@@ -19,16 +19,14 @@ impl super::super::Command for Args {
 }
 
 impl Args {
-    /// Special function for these subcommands which can be run in different contexts
-    ///
-    /// Will be called with `is_subcommand` as true when called via clap subcommands,
-    /// or with `is_subcommand` as false, when called directly, from the `sfsu outdated` command
-
     // TODO: Refactor this mess into a traits system
     // TODO: where the is a seperate command trait for those which (can) return data
     // TODO: and those which cant
     // TODO: alongside seperate impls with a where bound where needed
-
+    /// Special function for these subcommands which can be run in different contexts
+    ///
+    /// Will be called with `is_subcommand` as true when called via clap subcommands,
+    /// or with `is_subcommand` as false, when called directly, from the `sfsu outdated` command
     pub fn run_direct(
         self,
         ctx: &impl ScoopContext,

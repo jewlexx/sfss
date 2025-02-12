@@ -1,4 +1,5 @@
 pub mod cat;
+pub mod cleanup;
 #[cfg(feature = "download")]
 pub mod download;
 pub mod home;
@@ -9,20 +10,38 @@ pub mod uninstall;
 
 use clap::{Parser, Subcommand};
 
-use sfsu_macros::Runnable;
 use sprinkles::{config, contexts::ScoopContext};
 
-use super::{Command, CommandRunner};
+use super::{Command, CommandRunner, Runnable};
 
-#[derive(Debug, Clone, Subcommand, Runnable)]
+#[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     Cat(cat::Args),
+    Cleanup(cleanup::Args),
     #[cfg(feature = "download")]
     Download(download::Args),
     Home(home::Args),
     Info(info::Args),
     List(list::Args),
     Purge(purge::Args),
+}
+
+impl Runnable for Commands {
+    async fn run(
+        self,
+        ctx: &impl sprinkles::contexts::ScoopContext<Config = sprinkles::config::Scoop>,
+    ) -> anyhow::Result<()> {
+        match self {
+            Commands::Cat(args) => args.run(ctx).await,
+            Commands::Cleanup(args) => args.run(ctx).await,
+            #[cfg(feature = "download")]
+            Commands::Download(args) => args.run(ctx).await,
+            Commands::Home(args) => args.run(ctx).await,
+            Commands::Info(args) => args.run(ctx).await,
+            Commands::List(args) => args.run(ctx).await,
+            Commands::Purge(args) => args.run(ctx).await,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Parser)]

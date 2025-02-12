@@ -124,13 +124,15 @@ impl Diagnostics {
     /// - Unable to open the registry key
     /// - Unable to check if the key exists
     pub fn check_windows_defender(ctx: &impl ScoopContext) -> windows::core::Result<bool> {
-        use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
+        use winreg::{RegKey, enums::HKEY_LOCAL_MACHINE};
 
         let scoop_dir = ctx.path();
         let key = RegKey::predef(HKEY_LOCAL_MACHINE)
             .open_subkey(r"SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths")?;
 
-        Ok(key.open_subkey(scoop_dir).is_ok())
+        let scoop_dir_key = key.open_subkey(scoop_dir);
+
+        Ok(scoop_dir_key.is_ok())
     }
 
     /// Check if the main bucket exists
@@ -150,7 +152,7 @@ impl Diagnostics {
     /// - Unable to read the OS version
     pub fn check_long_paths() -> windows::core::Result<LongPathsStatus> {
         use windows_version::OsVersion;
-        use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
+        use winreg::{RegKey, enums::HKEY_LOCAL_MACHINE};
 
         let version = OsVersion::current();
 
@@ -177,7 +179,7 @@ impl Diagnostics {
     /// - Unable to read the registry
     /// - Unable to read the value
     pub fn get_windows_developer_status() -> windows::core::Result<bool> {
-        use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
+        use winreg::{RegKey, enums::HKEY_LOCAL_MACHINE};
 
         let hlkm = RegKey::predef(HKEY_LOCAL_MACHINE);
         let key = hlkm.open_subkey(r"SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock")?;
@@ -193,8 +195,8 @@ impl Diagnostics {
     /// - Unable to get the root path
     pub fn is_ntfs(ctx: &impl ScoopContext) -> windows::core::Result<bool> {
         use windows::{
-            core::HSTRING,
             Win32::{Foundation::MAX_PATH, Storage::FileSystem::GetVolumeInformationW},
+            core::HSTRING,
         };
 
         let path = ctx.path();

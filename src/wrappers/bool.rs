@@ -3,7 +3,7 @@
 use std::fmt::Display;
 
 use derive_more::{AsMut, AsRef, Deref, DerefMut};
-use serde::{de::Visitor, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::Visitor};
 
 #[derive(Debug, Copy, Clone, AsRef, AsMut, Deref, DerefMut)]
 /// A nicer way to display booleans
@@ -53,7 +53,7 @@ impl<'de> Deserialize<'de> for NicerBool {
 }
 
 struct NicerBoolVisitor;
-impl<'de> Visitor<'de> for NicerBoolVisitor {
+impl Visitor<'_> for NicerBoolVisitor {
     type Value = NicerBool;
 
     fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

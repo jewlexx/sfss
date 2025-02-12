@@ -2,7 +2,7 @@ use clap::Parser;
 use quork::traits::list::ListVariants;
 use sprinkles::{contexts::ScoopContext, shell::Shell};
 
-use super::CommandsHooks;
+use super::CommandHooks as CommandsHooks;
 
 #[derive(Debug, Clone, Parser)]
 /// Generate hooks for the given shell
@@ -88,10 +88,10 @@ impl super::Command for Args {
                 }
 
                 println!(
-                        "\n# To add this to your config, run `sfsu hook --shell {shell} | save ~/.cache/sfsu.nu`\n\
+                    "\n# To add this to your config, run `sfsu hook --shell {shell} | save ~/.cache/sfsu.nu`\n\
                         # And then in your {shell_config} add the following line to the end:\n\
                         #   source ~/.cache/sfsu.nu"
-                    );
+                );
             }
         }
 

@@ -1,9 +1,12 @@
-#![warn(
-    clippy::all,
-    clippy::pedantic,
-    rust_2018_idioms,
-    rust_2024_compatibility
-)]
+#![warn(clippy::all, clippy::pedantic, rust_2018_idioms)]
+// Allow using single match instead of if let
+// This allows us to circumvent the lifetime changes coming in rust 2024
+#![allow(clippy::single_match_else)]
+// Ignore this lint for now. Cases are not an issue,
+// and it cannot be disabled for a single line AFAIK
+#![allow(tail_expr_drop_order)]
+#![feature(trait_alias)]
+#![feature(let_chains)]
 
 // TODO: Replace regex with glob
 
@@ -11,10 +14,13 @@ mod calm_panic;
 mod commands;
 mod diagnostics;
 mod errors;
+mod handlers;
 mod limits;
 mod logging;
 mod models;
 mod output;
+mod progress;
+mod validations;
 mod wrappers;
 
 use std::{
@@ -24,46 +30,21 @@ use std::{
 
 use clap::Parser;
 
-use commands::Commands;
+use commands::{Commands, Runnable};
 use logging::Logger;
-use sprinkles::contexts::{AnyContext, User};
+use sprinkles::{
+    Architecture,
+    contexts::{AnyContext, ScoopContext, User},
+};
 
 #[cfg(feature = "contexts")]
 use sprinkles::contexts::Global;
+use validations::Validate;
+
+shadow_rs::shadow!(shadow);
 
 mod versions {
-    #![allow(clippy::needless_raw_string_hashes)]
-
-    use konst::eq_str;
-
-    include!(concat!(env!("OUT_DIR"), "/shadow.rs"));
-
-    pub const SFSU_LONG_VERSION: &str = {
-        use shadow_rs::formatcp;
-
-        const LIBGIT2_VERSION: &str = env!("LIBGIT2_VERSION");
-
-        const SPRINKLES_VERSION: &str = env!("SPRINKLES_VERSION");
-        const SPRINKLES_GIT_SOURCE: &str = env!("SPRINKLES_GIT_SOURCE");
-        const SPRINKLES_GIT_REV: &str = env!("SPRINKLES_GIT_REV");
-
-        const SPRINKLES_REV: &str = if eq_str(SPRINKLES_GIT_SOURCE, "true") {
-            formatcp!(" (git rev: {SPRINKLES_GIT_REV})")
-        } else {
-            " (crates.io published version)"
-        };
-
-        formatcp!(
-            r#"{PKG_VERSION}
-sprinkles {SPRINKLES_VERSION}{SPRINKLES_REV}
-branch:{BRANCH}
-tag:{TAG}
-commit_hash:{SHORT_COMMIT}
-build_time:{BUILD_TIME}
-build_env:{RUST_VERSION},{RUST_CHANNEL}
-libgit2:{LIBGIT2_VERSION}"#
-        )
-    };
+    pub const SFSU_LONG_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/long_version.txt"));
 }
 
 #[macro_use]
@@ -90,17 +71,20 @@ struct Args {
     #[clap(
         long,
         global = true,
-        help = "Print in the raw JSON output, rather than a human readable format"
+        help = "Print in the raw JSON output, rather than a human readable format, if the command supports it"
     )]
     json: bool,
 
-    #[clap(short, long, global = true, help = "Enable verbose logging")]
+    #[clap(short, long, global = true, help = "Show more information in outputs")]
     verbose: bool,
+
+    #[clap(long, global = true, help = "Enable debug logging")]
+    debug: bool,
 
     #[clap(
         long,
         global = true,
-        help = "Disable using git commands for certain parts of the program. Allows sfsu to work entirely if you don't have git installed, but can negatively affect performance.",
+        help = "Disable using git commands for certain parts of the program. Allows sfsu to work entirely if you don't have git installed, but can negatively affect performance",
         env = "DISABLE_GIT"
     )]
     disable_git: bool,
@@ -108,6 +92,14 @@ struct Args {
     #[cfg(feature = "contexts")]
     #[clap(short, long, global = true, help = "Use the global Scoop context")]
     global: bool,
+
+    #[clap(
+        long,
+        global = true,
+        help = "Use the specified architecture, if the app and command support it",
+        default_value_t = Architecture::ARCH
+    )]
+    arch: Architecture,
 
     #[clap(
         global = true,
@@ -163,6 +155,8 @@ async fn main() -> anyhow::Result<()> {
         console::set_colors_enabled_stderr(false);
         COLOR_ENABLED.store(false, Ordering::Relaxed);
     }
+
+    ctx.config().validate()?;
 
     debug!("Running command: {:?}", args.command);
 

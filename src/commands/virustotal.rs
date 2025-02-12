@@ -4,13 +4,12 @@ use anyhow::Context;
 use clap::{Parser, ValueEnum};
 use rayon::prelude::*;
 use sprinkles::{
-    config,
+    Architecture, config,
     contexts::ScoopContext,
     hash::Hash,
-    packages::{reference::package, CreateManifest, Manifest},
-    progress::{indicatif::ProgressBar, style, ProgressOptions},
+    packages::{CreateManifest, Manifest, reference::package},
+    progress::{ProgressOptions, indicatif::ProgressBar, style},
     requests::USER_AGENT,
-    Architecture,
 };
 
 use crate::{
@@ -112,12 +111,7 @@ pub struct Args {
     )]
     filter: Option<Status>,
 
-    #[clap(
-        short,
-        long,
-        help = "Use the specified architecture, if the app supports it",
-        default_value_t = Architecture::ARCH
-    )]
+    #[clap(from_global)]
     arch: Architecture,
 
     #[clap(short = 'A', long, help = "Scan all installed apps")]
@@ -171,13 +165,12 @@ impl super::Command for Args {
         let matches = manifests
             .into_iter()
             .filter_map(|manifest| {
-                let result = if let Some(hash) = manifest.install_config(self.arch).hash {
-                    Some(hash.map(SearchType::FileHash).to_vec())
-                } else {
-                    manifest
+                let result = match manifest.install_config(self.arch).hash {
+                    Some(hash) => Some(hash.map(SearchType::FileHash).to_vec()),
+                    _ => manifest
                         .install_config(self.arch)
                         .urls
-                        .map(|url| url.map(SearchType::Url).to_vec())
+                        .map(|url| url.map(SearchType::Url).to_vec()),
                 };
 
                 result.map(|result| {
@@ -197,21 +190,27 @@ impl super::Command for Args {
 
                     let result = match search_type {
                         SearchType::FileHash(hash) => {
-                            let result = client.file_info(&hash.to_string()).await.recoverable();
+                            let result = tokio::task::spawn_blocking(move || {
+                                client.file_info(&hash.to_string())
+                            })
+                            .await?
+                            .recoverable();
 
-                            if let Some(result) = result {
-                                serde_json::to_value(result?)?
-                            } else {
-                                return anyhow::Ok((manifest, None));
+                            match result {
+                                Some(result) => serde_json::to_value(result?)?,
+                                _ => {
+                                    return anyhow::Ok((manifest, None));
+                                }
                             }
                         }
                         SearchType::Url(url) => {
-                            let result = client.url_info(&url).await.recoverable();
+                            let result = tokio::task::spawn_blocking(move || client.url_info(&url))
+                                .await?
+                                .recoverable();
 
-                            if let Some(result) = result {
-                                serde_json::to_value(result?)?
-                            } else {
-                                return anyhow::Ok((manifest, None));
+                            match result {
+                                Some(result) => serde_json::to_value(result?)?,
+                                None => return anyhow::Ok((manifest, None)),
                             }
                         }
                     };

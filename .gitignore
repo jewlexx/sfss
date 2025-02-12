@@ -12,3 +12,6 @@ logs/
 
 # Intellij IDEA configs
 .idea/
+
+# Profiling information
+flamegraph.svg

@@ -1,4 +1,4 @@
-use human_panic::{setup_panic, Metadata};
+use human_panic::{Metadata, setup_panic};
 
 pub fn handle() {
     setup_panic! {
