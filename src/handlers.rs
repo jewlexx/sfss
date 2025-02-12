@@ -1,22 +1,24 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, rc::Rc};
 
 use sprinkles::packages::reference::package;
 
 use crate::output::colours::{bright_red, green, yellow};
 
-pub trait ListApps<C: ?Sized> = Fn(&C) -> anyhow::Result<Option<Vec<package::Reference>>>;
+type ListAppsResult = anyhow::Result<Option<Vec<package::Reference>>>;
 
-pub struct AppsDecider<'c, C: ?Sized, F: ListApps<C>> {
+pub type ListApps<C> = Rc<dyn Fn(&C) -> ListAppsResult>;
+
+pub struct AppsDecider<'c, C: ?Sized> {
     ctx: &'c C,
-    list_all: F,
+    list_all: ListApps<C>,
     provided: Vec<package::Reference>,
 }
 
-impl<'c, C: ?Sized, F: ListApps<C>> AppsDecider<'c, C, F> {
-    pub fn new(ctx: &'c C, all: F, provided: Vec<package::Reference>) -> Self {
+impl<'c, C: ?Sized> AppsDecider<'c, C> {
+    pub fn new(ctx: &'c C, list_all: ListApps<C>, provided: Vec<package::Reference>) -> Self {
         Self {
             ctx,
-            list_all: all,
+            list_all,
             provided,
         }
     }
