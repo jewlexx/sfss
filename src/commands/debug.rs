@@ -20,6 +20,7 @@ impl Runnable for Commands {
     ) -> anyhow::Result<()> {
         match self {
             Commands::Save(args) => args.run(ctx).await,
+            Commands::Sizes(args) => args.run(ctx).await,
         }
     }
 }

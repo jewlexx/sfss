@@ -19,16 +19,16 @@ impl super::Command for Args {
         let debug_save_size = std::mem::size_of::<commands::debug::save::Args>();
         let debug_sizes = std::mem::size_of::<commands::debug::sizes::Args>();
         let depends_size = std::mem::size_of::<commands::depends::Args>();
-        let download_size = std::mem::size_of::<commands::download::Args>();
+        let download_size = std::mem::size_of::<commands::app::download::Args>();
         let export_size = std::mem::size_of::<commands::export::Args>();
-        let home_size = std::mem::size_of::<commands::home::Args>();
-        let info_size = std::mem::size_of::<commands::info::Args>();
-        let list_size = std::mem::size_of::<commands::list::Args>();
+        let home_size = std::mem::size_of::<commands::app::home::Args>();
+        let info_size = std::mem::size_of::<commands::app::info::Args>();
+        let list_size = std::mem::size_of::<commands::app::list::Args>();
         let outdated_size = std::mem::size_of::<commands::outdated::Args>();
         let search_size = std::mem::size_of::<commands::search::Args>();
         let status_size = std::mem::size_of::<commands::status::Args>();
         let uninstall_size = std::mem::size_of::<commands::uninstall::Args>();
-        let update_size = std::mem::size_of::<commands::update::Args>();
+        let update_size = std::mem::size_of::<commands::bucket::update::Args>();
         let virustotal_size = std::mem::size_of::<commands::virustotal::Args>();
 
         let command_args_size = std::mem::size_of::<commands::Commands>();
