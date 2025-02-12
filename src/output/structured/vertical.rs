@@ -69,7 +69,8 @@ impl Display for VTable {
                             contestants.push(base[i]);
                             contestants.push(element.len());
 
-                            *contestants.iter().max().unwrap()
+                            // Safe as we have just pushed at least two items into the vector in the lines above
+                            *contestants.iter().max().expect("minimum two contestants")
                         })
                         .collect()
                 });

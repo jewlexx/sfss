@@ -1,9 +1,12 @@
-#![warn(
-    clippy::all,
-    clippy::pedantic,
-    rust_2018_idioms,
-    rust_2024_compatibility
-)]
+#![warn(clippy::all, clippy::pedantic, rust_2018_idioms)]
+// Allow using single match instead of if let
+// This allows us to circumvent the lifetime changes coming in rust 2024
+#![allow(clippy::single_match_else)]
+// Ignore this lint for now. Cases are not an issue,
+// and it cannot be disabled for a single line AFAIK
+#![allow(tail_expr_drop_order)]
+#![feature(trait_alias)]
+#![feature(let_chains)]
 
 // TODO: Replace regex with glob
 
@@ -11,6 +14,7 @@ mod calm_panic;
 mod commands;
 mod diagnostics;
 mod errors;
+mod handlers;
 mod limits;
 mod logging;
 mod models;
@@ -90,7 +94,6 @@ struct Args {
     global: bool,
 
     #[clap(
-        short,
         long,
         global = true,
         help = "Use the specified architecture, if the app and command support it",

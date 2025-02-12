@@ -107,9 +107,9 @@ impl super::Command for Args {
             return Ok(())
         }
 
-        if app_paths.len() == 1 {
-            let (app, path) = app_paths.values().next().unwrap();
-
+        if app_paths.len() == 1
+            && let Some((app, path)) = app_paths.values().next()
+        {
             eprintln_yellow!("Purging persist folder for {}", unsafe { app.name() });
 
             if !self.dry_run {
@@ -251,12 +251,9 @@ fn collect_references(
     let mut found_apps = vec![];
 
     apps.into_par_iter()
-        .map(|reference| {
-            if let Some(x) = reference.first(ctx) {
-                FindResult::Ok(x)
-            } else {
-                FindResult::Err(reference)
-            }
+        .map(|reference| match reference.first(ctx) {
+            Some(x) => FindResult::Ok(x),
+            None => FindResult::Err(reference),
         })
         .collect_into_vec(&mut found_apps);
 

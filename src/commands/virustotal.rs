@@ -165,13 +165,12 @@ impl super::Command for Args {
         let matches = manifests
             .into_iter()
             .filter_map(|manifest| {
-                let result = if let Some(hash) = manifest.install_config(self.arch).hash {
-                    Some(hash.map(SearchType::FileHash).to_vec())
-                } else {
-                    manifest
+                let result = match manifest.install_config(self.arch).hash {
+                    Some(hash) => Some(hash.map(SearchType::FileHash).to_vec()),
+                    _ => manifest
                         .install_config(self.arch)
                         .urls
-                        .map(|url| url.map(SearchType::Url).to_vec())
+                        .map(|url| url.map(SearchType::Url).to_vec()),
                 };
 
                 result.map(|result| {
@@ -197,10 +196,11 @@ impl super::Command for Args {
                             .await?
                             .recoverable();
 
-                            if let Some(result) = result {
-                                serde_json::to_value(result?)?
-                            } else {
-                                return anyhow::Ok((manifest, None));
+                            match result {
+                                Some(result) => serde_json::to_value(result?)?,
+                                _ => {
+                                    return anyhow::Ok((manifest, None));
+                                }
                             }
                         }
                         SearchType::Url(url) => {
@@ -208,10 +208,9 @@ impl super::Command for Args {
                                 .await?
                                 .recoverable();
 
-                            if let Some(result) = result {
-                                serde_json::to_value(result?)?
-                            } else {
-                                return anyhow::Ok((manifest, None));
+                            match result {
+                                Some(result) => serde_json::to_value(result?)?,
+                                None => return anyhow::Ok((manifest, None)),
                             }
                         }
                     };

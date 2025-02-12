@@ -120,6 +120,7 @@ pub enum Commands {
     App(app::Args),
     #[cfg(not(feature = "v2"))]
     Cat(app::cat::Args),
+    Cleanup(app::cleanup::Args),
     #[cfg(all(feature = "download", not(feature = "v2")))]
     Download(app::download::Args),
     #[cfg(not(feature = "v2"))]
@@ -166,6 +167,7 @@ impl Runnable for Commands {
             Commands::App(args) => args.run(ctx).await,
             #[cfg(not(feature = "v2"))]
             Commands::Cat(args) => args.run(ctx).await,
+            Commands::Cleanup(args) => args.run(ctx).await,
             #[cfg(all(feature = "download", not(feature = "v2")))]
             Commands::Download(args) => args.run(ctx).await,
             #[cfg(not(feature = "v2"))]
@@ -203,6 +205,7 @@ impl CommandHooks {
             CommandHooks::App => "app",
             #[cfg(not(feature = "v2"))]
             CommandHooks::Cat => "app cat",
+            CommandHooks::Cleanup => "app cleanup",
             #[cfg(all(feature = "download", not(feature = "v2")))]
             CommandHooks::Download => "app download",
             #[cfg(not(feature = "v2"))]
@@ -235,6 +238,7 @@ impl CommandHooks {
             CommandHooks::App => "app",
             #[cfg(not(feature = "v2"))]
             CommandHooks::Cat => "cat",
+            CommandHooks::Cleanup => "cleanup",
             #[cfg(all(feature = "download", not(feature = "v2")))]
             CommandHooks::Download => "download",
             #[cfg(not(feature = "v2"))]
@@ -269,6 +273,7 @@ impl From<String> for CommandHooks {
             "app" => CommandHooks::App,
             #[cfg(not(feature = "v2"))]
             "cat" => CommandHooks::Cat,
+            "cleanup" => CommandHooks::Cleanup,
             #[cfg(all(feature = "download", not(feature = "v2")))]
             "download" => CommandHooks::Download,
             #[cfg(not(feature = "v2"))]
