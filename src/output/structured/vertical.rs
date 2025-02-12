@@ -70,7 +70,7 @@ impl Display for VTable {
                             contestants.push(element.len());
 
                             // Safe as we have just pushed at least two items into the vector in the lines above
-                            *unsafe { contestants.iter().max().unwrap_unchecked() }
+                            *contestants.iter().max().unwrap()
                         })
                         .collect()
                 });
