@@ -110,7 +110,10 @@ impl Display for Structured {
                             contestants.push(element.len() + WALL.len());
 
                             // Safe as we have just pushed at least two items into the vector in the lines above
-                            contestants.into_iter().max().expect("minimum 2 contestants")
+                            contestants
+                                .into_iter()
+                                .max()
+                                .expect("minimum 2 contestants")
                         })
                         .collect()
                 });
