@@ -109,11 +109,9 @@ impl super::Command for Args {
 
         // if app_paths.len() == 1
         //     && let Some((app, path)) = app_paths.values().next()
-        if app_paths.len() == 1 {
-            let Some((app, path)) = app_paths.values().next() else {
-                unreachable!();
-            };
 
+        // Checks for exactly one element and grabs unwraps it
+        if let (1, Some((app, path))) = (app_paths.len(), app_paths.values().next()) {
             eprintln_yellow!("Purging persist folder for {}", unsafe { app.name() });
 
             if !self.dry_run {
