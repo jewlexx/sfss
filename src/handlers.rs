@@ -8,18 +8,16 @@ pub trait ListApps<C: ?Sized> = Fn(&C) -> anyhow::Result<Option<Vec<package::Ref
 
 pub struct AppsDecider<'c, C: ?Sized, F: ListApps<C>> {
     ctx: &'c C,
-    all: F,
+    list_all: F,
     provided: Vec<package::Reference>,
-    collections: CollectionNames,
 }
 
 impl<'c, C: ?Sized, F: ListApps<C>> AppsDecider<'c, C, F> {
     pub fn new(ctx: &'c C, all: F, provided: Vec<package::Reference>) -> Self {
         Self {
             ctx,
-            all,
+            list_all: all,
             provided,
-            collections: CollectionNames::default(),
         }
     }
 
@@ -31,7 +29,7 @@ impl<'c, C: ?Sized, F: ListApps<C>> AppsDecider<'c, C, F> {
     ///
     /// If the return value is empty, that means no apps were provided and all was false.
     pub fn decide(self) -> anyhow::Result<Option<Vec<package::Reference>>> {
-        let Some(installed_apps) = (self.all)(self.ctx)? else {
+        let Some(installed_apps) = (self.list_all)(self.ctx)? else {
             return Ok(Some(self.provided));
         };
 
@@ -43,7 +41,7 @@ impl<'c, C: ?Sized, F: ListApps<C>> AppsDecider<'c, C, F> {
             (
                 bright_red!(
                     "{} - {}",
-                    upper_first_char(self.collections.all),
+                    upper_first_char(const { CollectionNames::all() }),
                     installed_apps.len()
                 )
                 .to_string(),
@@ -52,7 +50,7 @@ impl<'c, C: ?Sized, F: ListApps<C>> AppsDecider<'c, C, F> {
             (
                 green!(
                     "{} - {} (see command invocation)",
-                    upper_first_char(self.collections.provided),
+                    upper_first_char(const { CollectionNames::provided() }),
                     self.provided.len()
                 )
                 .to_string(),
@@ -62,8 +60,8 @@ impl<'c, C: ?Sized, F: ListApps<C>> AppsDecider<'c, C, F> {
 
         let prompt = yellow!(
             "You have {provided}, but also selected {all}. Which collection would you like to choose?",
-            provided = self.collections.provided,
-            all = self.collections.all,
+            provided = const { CollectionNames::provided() },
+            all = const { CollectionNames::all() },
         ).to_string();
 
         let Some(choice_index) = dialoguer::Select::new()
@@ -95,12 +93,24 @@ pub struct CollectionNames {
     provided: &'static str,
 }
 
+impl CollectionNames {
+    pub const DEFAULT: Self = Self {
+        all: "all installed apps",
+        provided: "provided apps",
+    };
+
+    pub const fn all() -> &'static str {
+        Self::DEFAULT.all
+    }
+
+    pub const fn provided() -> &'static str {
+        Self::DEFAULT.provided
+    }
+}
+
 impl Default for CollectionNames {
     fn default() -> Self {
-        Self {
-            all: "all installed apps",
-            provided: "provided apps",
-        }
+        Self::DEFAULT
     }
 }
 
