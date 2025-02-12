@@ -5,8 +5,6 @@
 // Ignore this lint for now. Cases are not an issue,
 // and it cannot be disabled for a single line AFAIK
 #![allow(tail_expr_drop_order)]
-#![feature(trait_alias)]
-#![feature(let_chains)]
 
 // TODO: Replace regex with glob
 

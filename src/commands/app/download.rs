@@ -142,9 +142,9 @@ impl super::Command for Args {
 }
 
 impl Args {
-    fn list_apps<C: ScoopContext>(&self) -> impl ListApps<C> + use<C> {
+    fn list_apps<C: ScoopContext>(&self) -> ListApps<C> {
         let outdated = self.outdated;
-        move |ctx: &C| {
+        std::rc::Rc::new(move |ctx: &C| {
             if outdated {
                 let apps = install::Manifest::list_all_unchecked(ctx)?;
 
@@ -179,6 +179,6 @@ impl Args {
             } else {
                 anyhow::Ok(None)
             }
-        }
+        })
     }
 }

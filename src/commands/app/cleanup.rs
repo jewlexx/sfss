@@ -95,9 +95,9 @@ impl super::Command for Args {
 }
 
 impl Args {
-    fn list_apps<C: ScoopContext>(&self) -> impl ListApps<C> + use<C> {
+    fn list_apps<C: ScoopContext>(&self) -> ListApps<C> {
         let all = self.all;
-        move |ctx: &C| {
+        std::rc::Rc::new(move |ctx: &C| {
             if all {
                 let installed_apps: Vec<package::Reference> = {
                     let installed_apps = ctx.installed_apps()?;
@@ -120,7 +120,7 @@ impl Args {
             } else {
                 anyhow::Ok(None)
             }
-        }
+        })
     }
 
     async fn cleanup_app(
