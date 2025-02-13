@@ -1,7 +1,5 @@
 [toolchain]
 channel = "beta"
-components = ["clippy", "rustfmt"]
-profile = "minimal"
 targets = [
     "aarch64-pc-windows-msvc",
     "i686-pc-windows-msvc",
