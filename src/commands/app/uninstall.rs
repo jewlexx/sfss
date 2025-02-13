@@ -4,6 +4,7 @@ use clap::Parser;
 use itertools::Itertools;
 use quork::traits::truthy::ContainsTruth;
 use sprinkles::{
+    Architecture,
     contexts::ScoopContext,
     handles::packages::PackageHandle,
     packages::{
@@ -11,7 +12,6 @@ use sprinkles::{
         reference::{manifest, package},
     },
     scripts::PowershellScript,
-    Architecture,
 };
 
 use crate::output::colours::eprintln_red;
