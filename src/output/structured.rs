@@ -9,7 +9,7 @@ use serde_json::{Map, Value};
 
 use crate::wrappers::header::Header;
 
-use super::{consts::WALL, truncate::FixedLength};
+use super::{colours::green, consts::WALL, truncate::FixedLength};
 
 pub mod vertical;
 
@@ -115,13 +115,15 @@ impl Display for Structured {
             .map(|(header, values)| header.len().max(values.max_length()))
             .collect_vec();
 
+        let term_columns = console::Term::stdout().size().1;
+
         #[allow(
             clippy::cast_precision_loss,
             clippy::cast_possible_truncation,
             clippy::cast_sign_loss
         )]
         let evened_access_lengths = {
-            let term_columns: f64 = console::Term::stdout().size().1.into();
+            let term_columns: f64 = term_columns.into();
             let total = access_lengths.iter().sum::<usize>() as f64;
             let percents = access_lengths.iter().map(|s| ((*s) as f64) / total);
             let even_parts = percents.map(|p| (p * term_columns).floor() as usize);
@@ -135,7 +137,7 @@ impl Display for Structured {
         for (i, (header, _)) in header_values.iter().enumerate() {
             let header_size = access_lengths[i];
 
-            let truncated = FixedLength::new(Header::new(header));
+            let truncated = console::style(FixedLength::new(Header::new(header))).green();
             write!(f, "{truncated:header_size$}{WALL}")?;
         }
 
