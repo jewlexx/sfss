@@ -72,7 +72,7 @@ impl Args {
 
                 println!("{output}");
             } else {
-                let outputs = Structured::new(&values).with_max_length(30);
+                let outputs = Structured::new(&values);
 
                 print!("{outputs}");
             }
