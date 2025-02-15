@@ -66,6 +66,7 @@ crossterm = "0.28"
 derive_more = { version = "2.0", features = ["deref_mut", "deref", "as_ref"] }
 dialoguer = "0.11"
 futures = "0.3"
+hashbrown = "0.15.2"
 heck = "0.5"
 human-panic = "2.0"
 indexmap = { version = "2.7.1", features = ["rayon"] }

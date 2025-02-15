@@ -2,12 +2,13 @@
 
 use std::fmt::Display;
 
+use hashbrown::HashMap;
 use indexmap::IndexMap;
 use itertools::Itertools;
 use serde::Serialize;
 use serde_json::{Map, Value};
 
-use crate::wrappers::header::Header;
+use crate::{float::usize::convert_to_f64, wrappers::header::Header};
 
 use super::{consts::WALL, truncate::FixedLength};
 
@@ -20,7 +21,6 @@ pub mod vertical;
 /// to be constructed and used within the same function.
 pub struct Structured {
     objects: Vec<Map<String, Value>>,
-    max_length: Option<usize>,
 }
 
 impl Structured {
@@ -43,16 +43,13 @@ impl Structured {
             })
             .collect::<Vec<_>>();
 
-        Structured {
-            objects,
-            max_length: None,
-        }
+        Structured { objects }
     }
 
+    #[inline]
+    // TODO: Remove this redundant method
     /// Add a max length to the [`Structured`] formatter
-    pub fn with_max_length(mut self, max: usize) -> Self {
-        self.max_length = Some(max);
-
+    pub fn with_max_length(self, _max: usize) -> Self {
         self
     }
 }
@@ -112,30 +109,41 @@ impl Display for Structured {
 
         let access_lengths = header_values
             .iter()
-            .map(|(header, values)| header.len().max(values.max_length()))
+            .map(|(header, values)| (header, header.len().max(values.max_length())))
             .collect_vec();
 
         let term_columns = console::Term::stdout().size().1;
 
         #[allow(
             clippy::cast_precision_loss,
-            clippy::cast_possible_truncation,
-            clippy::cast_sign_loss
+            clippy::cast_sign_loss,
+            clippy::cast_possible_truncation
         )]
-        let evened_access_lengths = {
+        // Number of columns each header has access to in the terminal
+        // The index of each column is the index of the header in the indexmap iterator
+        let column_lengths = {
             let term_columns: f64 = term_columns.into();
-            let total = access_lengths.iter().sum::<usize>() as f64;
-            let percents = access_lengths.iter().map(|s| ((*s) as f64) / total);
-            let even_parts = percents.map(|p| (p * term_columns).floor() as usize);
 
-            even_parts.collect::<Vec<_>>()
+            let total = convert_to_f64(access_lengths.iter().map(|(_, len)| len).sum::<usize>())
+                .expect("total length within reasonable range. please report this bug");
+
+            access_lengths
+                .iter()
+                .fold(HashMap::new(), |mut acc, (header, len)| {
+                    let percent = ((*len) as f64) / total;
+                    let columns = (percent * term_columns).floor() as usize;
+
+                    acc.entry((*header).to_string()).or_insert(columns);
+                    acc
+                })
         };
 
-        let access_lengths = evened_access_lengths;
+        // Finalise values
+        let mut finalised_values = header_values;
 
         // Print Headers
-        for (i, (header, _)) in header_values.iter().enumerate() {
-            let header_size = access_lengths[i];
+        for (header, _) in &finalised_values {
+            let header_size = column_lengths.get(header).copied().unwrap_or_default();
 
             let truncated = console::style(FixedLength::new(Header::new(header))).green();
             write!(f, "{truncated:header_size$}{WALL}")?;
@@ -144,16 +152,13 @@ impl Display for Structured {
         // Enter new row
         writeln!(f)?;
 
-        // Finalise values
-        let mut finalised_values = header_values;
-
         // Print Values
-        for _ in 0..=self.objects.len() {
-            for (i, (_, values)) in finalised_values.iter_mut().enumerate() {
-                let value_size = access_lengths[i];
+        for _ in 0..self.objects.len() {
+            for (header, values) in &mut finalised_values {
+                let value_size = column_lengths.get(header).copied().unwrap_or_default();
 
                 let Some(current_value) = values.pop() else {
-                    continue;
+                    panic!("ran out of values early. this is a bug.");
                 };
                 let element = match current_value {
                     Value::Null => String::new(),
