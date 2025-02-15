@@ -9,7 +9,7 @@ use serde_json::{Map, Value};
 
 use crate::wrappers::header::Header;
 
-use super::{colours::green, consts::WALL, truncate::FixedLength};
+use super::{consts::WALL, truncate::FixedLength};
 
 pub mod vertical;
 
