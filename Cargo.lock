@@ -3915,6 +3915,7 @@ dependencies = [
  "sprinkles-rs",
  "tokio",
  "toml_edit",
+ "url",
  "vt3",
  "which",
  "windows 0.59.0",

@@ -24,6 +24,10 @@ name = "serde"
 harness = false
 name = "autoupdate"
 
+[[bench]]
+harness = false
+name = "url_parsing"
+
 [profile.release]
 codegen-units = 1
 lto = true
@@ -93,6 +97,7 @@ winreg = "0.55"
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
+url = "2.5.4"
 
 [build-dependencies]
 contribs = { git = "https://github.com/winpax/contribs.git", version = "0.1" }
