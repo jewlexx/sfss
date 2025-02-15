@@ -2,7 +2,7 @@
 
 use std::fmt::Display;
 
-use hashbrown::HashMap;
+use indexmap::IndexMap;
 use itertools::Itertools;
 use serde::Serialize;
 use serde_json::{Map, Value};
@@ -96,7 +96,7 @@ impl Display for Structured {
         let header_values =
             self.objects
                 .iter()
-                .fold(HashMap::<String, Values<'_>>::new(), |mut base, object| {
+                .fold(IndexMap::<String, Values<'_>>::new(), |mut base, object| {
                     for (k, v) in object {
                         if let Some(values) = base.get_mut(k) {
                             values.header_values.push(v);
