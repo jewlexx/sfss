@@ -1,3 +1,5 @@
+//! Idea copied from <https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=193858e8ee940d6244edb7fb806f446a>
+
 #![allow(
     clippy::cast_possible_truncation,
     clippy::cast_sign_loss,
