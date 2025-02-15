@@ -155,27 +155,21 @@ impl Display for Structured {
                 let Some(current_value) = values.pop() else {
                     continue;
                 };
-                let Some(element) = (match current_value {
-                    Value::Null => None,
-                    Value::Bool(bool) => Some(bool.to_string()),
-                    Value::Number(number) => Some(number.to_string()),
-                    Value::String(string) => Some(string.to_string()),
-                    Value::Array(array) => Some(
-                        array
-                            .iter()
-                            .map(|v| v.as_str().unwrap_or("<object>"))
-                            .join(", "),
-                    ),
+                let element = match current_value {
+                    Value::Null => continue,
+                    Value::Bool(bool) => bool.to_string(),
+                    Value::Number(number) => number.to_string(),
+                    Value::String(string) => string.to_string(),
+                    Value::Array(array) => array
+                        .iter()
+                        .map(|v| v.as_str().unwrap_or("<object>"))
+                        .join(", "),
+
                     Value::Object(_) => panic!("Objects not supported within other objects"),
-                }) else {
-                    continue;
                 };
 
                 let with_suffix = FixedLength::new(element);
 
-                #[cfg(feature = "v2")]
-                write!(f, "{with_suffix:value_size$}{WALL}")?;
-                #[cfg(not(feature = "v2"))]
                 write!(f, "{with_suffix:value_size$}{WALL}")?;
             }
 
