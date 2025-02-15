@@ -259,7 +259,7 @@ impl Args {
                 .map(serde_json::to_value)
                 .collect::<Result<Vec<_>, _>>()?;
 
-            let outputs = Structured::new(&values).with_max_length(30);
+            let outputs = Structured::new(&values);
 
             write!(output, "{outputs}")?;
         }

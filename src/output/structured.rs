@@ -45,13 +45,6 @@ impl Structured {
 
         Structured { objects }
     }
-
-    #[inline]
-    // TODO: Remove this redundant method
-    /// Add a max length to the [`Structured`] formatter
-    pub fn with_max_length(self, _max: usize) -> Self {
-        self
-    }
 }
 
 struct Values<'a> {
