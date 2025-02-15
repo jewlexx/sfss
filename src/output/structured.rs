@@ -156,7 +156,7 @@ impl Display for Structured {
                     continue;
                 };
                 let element = match current_value {
-                    Value::Null => continue,
+                    Value::Null => String::new(),
                     Value::Bool(bool) => bool.to_string(),
                     Value::Number(number) => number.to_string(),
                     Value::String(string) => string.to_string(),
