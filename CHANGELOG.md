@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `app cleanup` command for removing old versions and cache entries
 
+### Changed
+
+- Major refactor of `Structured` output struct
+  - This includes an updated design for the output string
+
 ## [1.16.0] - 2025-19-01
 
 ### Fixes
