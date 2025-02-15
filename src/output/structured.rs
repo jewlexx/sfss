@@ -163,12 +163,7 @@ impl Display for Structured {
                     Value::Array(array) => Some(
                         array
                             .iter()
-                            .map(|v| {
-                                v.as_str()
-                                    .map(std::string::ToString::to_string)
-                                    .unwrap_or_default()
-                            })
-                            .collect::<Vec<String>>()
+                            .map(|v| v.as_str().unwrap_or("<object>"))
                             .join(", "),
                     ),
                     Value::Object(_) => panic!("Objects not supported within other objects"),
