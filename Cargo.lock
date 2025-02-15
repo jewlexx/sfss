@@ -2129,6 +2129,7 @@ dependencies = [
  "allocator-api2",
  "equivalent",
  "foldhash",
+ "rayon",
 ]
 
 [[package]]
@@ -3893,6 +3894,7 @@ dependencies = [
  "dotenv",
  "futures",
  "git2",
+ "hashbrown 0.15.2",
  "heck",
  "human-panic",
  "itertools 0.14.0",

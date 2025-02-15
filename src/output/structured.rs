@@ -2,6 +2,7 @@
 
 use std::fmt::Display;
 
+use hashbrown::HashMap;
 use itertools::Itertools;
 use serde::Serialize;
 use serde_json::{Map, Value};
@@ -11,24 +12,6 @@ use crate::wrappers::header::Header;
 use super::{consts::WALL, truncate::FixedLength};
 
 pub mod vertical;
-
-#[deprecated]
-#[allow(dead_code, unused_variables)]
-fn print_headers(
-    f: &mut std::fmt::Formatter<'_>,
-    headers: &[&String],
-    max_length: Option<usize>,
-    access_lengths: &[usize],
-) -> std::fmt::Result {
-    for (i, header) in headers.iter().enumerate() {
-        let header_size = access_lengths[i];
-
-        let truncated = FixedLength::new(Header::new(header));
-        write!(f, "{truncated:header_size$}{WALL}")?;
-    }
-
-    Ok(())
-}
 
 #[must_use = "Structured is lazy, and only takes effect when used in formatting"]
 /// A table of data
@@ -52,9 +35,11 @@ impl Structured {
             .map(|v| {
                 let value = serde_json::to_value(v).expect("valid value");
 
-                let object = value.as_object().expect("object").clone();
-
-                object
+                if let Value::Object(object) = value {
+                    object
+                } else {
+                    panic!("Expected object, got {value:?}");
+                }
             })
             .collect::<Vec<_>>();
 
@@ -72,51 +57,63 @@ impl Structured {
     }
 }
 
+struct Values<'a> {
+    header_values: Vec<&'a Value>,
+}
+
+impl std::ops::DerefMut for Values<'_> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.header_values
+    }
+}
+
+impl<'a> std::ops::Deref for Values<'a> {
+    type Target = Vec<&'a Value>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.header_values
+    }
+}
+
+impl Values<'_> {
+    fn new() -> Self {
+        Self {
+            header_values: vec![],
+        }
+    }
+
+    fn max_length(&self) -> usize {
+        self.header_values
+            .iter()
+            .filter_map(|v| Some(v.as_str()?.len()))
+            .max()
+            .unwrap_or_default()
+    }
+}
+
 impl Display for Structured {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let headers = self.objects[0].keys().collect_vec();
-
-        let contestants = {
-            let default_width = headers
-                .iter()
-                .map(|header| header.len())
-                .max()
-                .unwrap_or(const { "Updated".len() });
-
-            let mut v = vec![default_width];
-            v.extend(headers.iter().map(|s| s.len()));
-
-            v
-        };
-
-        // TODO: Imeplement max length with truncation
-        let access_lengths: Vec<usize> =
+        let header_values =
             self.objects
                 .iter()
-                .fold(vec![0; headers.len()], |base, row| {
-                    // TODO: Simultaneous iterators
+                .fold(HashMap::<String, Values<'_>>::new(), |mut base, object| {
+                    for (k, v) in object {
+                        if let Some(values) = base.get_mut(k) {
+                            values.header_values.push(v);
+                        } else {
+                            let mut values = Values::new();
+                            values.push(v);
+                            base.insert(k.to_string(), values);
+                        }
+                    }
 
-                    headers
-                        .iter()
-                        .enumerate()
-                        .map(|(i, header)| {
-                            let element = row
-                                .get(&heck::AsSnakeCase(header).to_string())
-                                .and_then(|v| v.as_str())
-                                .unwrap_or_default();
-
-                            let mut contestants = contestants.clone();
-                            contestants.push(base[i]);
-                            contestants.push(element.len() + WALL.len());
-
-                            // Safe as we have just pushed at least two items into the vector in the lines above
-                            contestants
-                                .into_iter()
-                                .max()
-                                .expect("minimum 2 contestants")
-                        })
-                        .collect()
+                    base
                 });
+
+        let access_lengths = header_values
+            .iter()
+            .map(|(header, values)| header.len().max(values.max_length()))
+            .collect_vec();
 
         #[allow(
             clippy::cast_precision_loss,
@@ -134,7 +131,8 @@ impl Display for Structured {
 
         let access_lengths = evened_access_lengths;
 
-        for (i, header) in headers.iter().enumerate() {
+        // Print Headers
+        for (i, (header, _)) in header_values.iter().enumerate() {
             let header_size = access_lengths[i];
 
             let truncated = FixedLength::new(Header::new(header));
@@ -144,31 +142,37 @@ impl Display for Structured {
         // Enter new row
         writeln!(f)?;
 
-        for row in &self.objects {
-            for (i, header) in headers.iter().enumerate() {
+        // Finalise values
+        let mut finalised_values = header_values;
+
+        // Print Values
+        for _ in 0..=self.objects.len() {
+            for (i, (_, values)) in finalised_values.iter_mut().enumerate() {
                 let value_size = access_lengths[i];
 
-                let element = row
-                    .get(&heck::AsSnakeCase(header).to_string())
-                    .and_then(|v| match v {
-                        Value::Null => None,
-                        Value::Bool(bool) => Some(bool.to_string()),
-                        Value::Number(number) => Some(number.to_string()),
-                        Value::String(string) => Some(string.to_string()),
-                        Value::Array(array) => Some(
-                            array
-                                .iter()
-                                .map(|v| {
-                                    v.as_str()
-                                        .map(std::string::ToString::to_string)
-                                        .unwrap_or_default()
-                                })
-                                .collect::<Vec<String>>()
-                                .join(", "),
-                        ),
-                        Value::Object(_) => panic!("Objects not supported within other objects"),
-                    })
-                    .unwrap_or_default();
+                let Some(current_value) = values.pop() else {
+                    continue;
+                };
+                let Some(element) = (match current_value {
+                    Value::Null => None,
+                    Value::Bool(bool) => Some(bool.to_string()),
+                    Value::Number(number) => Some(number.to_string()),
+                    Value::String(string) => Some(string.to_string()),
+                    Value::Array(array) => Some(
+                        array
+                            .iter()
+                            .map(|v| {
+                                v.as_str()
+                                    .map(std::string::ToString::to_string)
+                                    .unwrap_or_default()
+                            })
+                            .collect::<Vec<String>>()
+                            .join(", "),
+                    ),
+                    Value::Object(_) => panic!("Objects not supported within other objects"),
+                }) else {
+                    continue;
+                };
 
                 let with_suffix = FixedLength::new(element);
 
