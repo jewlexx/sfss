@@ -24,10 +24,6 @@ name = "serde"
 harness = false
 name = "autoupdate"
 
-[[bench]]
-harness = false
-name = "url_parsing"
-
 [profile.release]
 codegen-units = 1
 lto = true
@@ -66,10 +62,8 @@ crossterm = "0.28"
 derive_more = { version = "2.0", features = ["deref_mut", "deref", "as_ref"] }
 dialoguer = "0.11"
 futures = "0.3"
-hashbrown = "0.15.2"
 heck = "0.5"
 human-panic = "2.0"
-indexmap = { version = "2.7.1", features = ["rayon"] }
 itertools = "0.14"
 konst = "0.3"
 log = { version = "0.4", features = ["std"] }
@@ -98,7 +92,6 @@ winreg = "0.55"
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["async_tokio", "html_reports"] }
-url = "2.5.4"
 
 [build-dependencies]
 contribs = { git = "https://github.com/winpax/contribs.git", version = "0.1" }

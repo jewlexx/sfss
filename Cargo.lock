@@ -2495,7 +2495,6 @@ checksum = "8c9c992b02b5b4c94ea26e32fe5bccb7aa7d9f390ab5c1221ff895bc7ea8b652"
 dependencies = [
  "equivalent",
  "hashbrown 0.15.2",
- "rayon",
  "serde",
 ]
 
@@ -3878,7 +3877,7 @@ dependencies = [
 
 [[package]]
 name = "sfsu"
-version = "1.17.0"
+version = "1.16.0"
 dependencies = [
  "anyhow",
  "bat",
@@ -3894,10 +3893,8 @@ dependencies = [
  "dotenv",
  "futures",
  "git2",
- "hashbrown 0.15.2",
  "heck",
  "human-panic",
- "indexmap 2.7.1",
  "itertools 0.14.0",
  "konst",
  "log",
@@ -3916,7 +3913,6 @@ dependencies = [
  "sprinkles-rs",
  "tokio",
  "toml_edit",
- "url",
  "vt3",
  "which",
  "windows 0.59.0",

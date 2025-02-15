@@ -12,7 +12,6 @@ mod calm_panic;
 mod commands;
 mod diagnostics;
 mod errors;
-pub mod float;
 mod handlers;
 mod limits;
 mod logging;

@@ -19,7 +19,7 @@ impl<T: Display> Display for FixedLength<T> {
                 write!(
                     f,
                     "{}{SUFFIX}",
-                    &data[0..length.checked_sub(SUFFIX.len()).unwrap_or_default()]
+                    &data[0..length.checked_sub(3).unwrap_or_default()]
                 )
             } else {
                 write!(f, "{data:length$}")
