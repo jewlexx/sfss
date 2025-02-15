@@ -1,2 +1,2 @@
-pub const WALL: &str = " | ";
+pub const WALL: &str = " ";
 pub const SUFFIX: &str = "...";
