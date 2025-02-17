@@ -1,4 +1,4 @@
-use std::{path::Path, process::Command};
+use std::path::Path;
 
 use clap::Parser;
 use itertools::Itertools;
@@ -7,11 +7,7 @@ use sprinkles::{
     Architecture,
     contexts::ScoopContext,
     handles::packages::PackageHandle,
-    packages::{
-        models::manifest::SingleOrArray,
-        reference::{manifest, package},
-    },
-    scripts::PowershellScript,
+    packages::reference::{manifest, package},
 };
 
 use crate::output::colours::eprintln_red;
@@ -127,6 +123,18 @@ impl Args {
                 host.run()?;
             }
         }
+
+        // TODO: Remove shims
+        // TODO: Remove start menu shortcuts
+        // TODO: Uninstall PSModules
+        // TODO: Remove from path
+        // TODO: Remove env vars
+        // TODO: Unlink (not remove!!!) persist data & version dir and handle errors
+        // TODO: Invoke post_uninstall
+
+        // TODO: Remove old versions <https://github.com/ScoopInstaller/Scoop/blob/859d1db51bcc840903d5280567846ae2f7207ca2/libexec/scoop-uninstall.ps1#L104>
+
+        // TODO: Purge persistant data if purge flag <https://github.com/ScoopInstaller/Scoop/blob/859d1db51bcc840903d5280567846ae2f7207ca2/libexec/scoop-uninstall.ps1#L132>
 
         todo!()
     }
