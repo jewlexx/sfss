@@ -35,7 +35,7 @@ impl Command for Args {
             .collect::<Result<Vec<_>, _>>()?;
 
         // TODO: Figure out max length so urls aren't truncated unless they need to be
-        let data = Structured::new(&values).with_max_length(50);
+        let data = Structured::new(&values);
 
         println!("{data}");
 
