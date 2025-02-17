@@ -3692,6 +3692,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "scoop-shim"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd91df5a1b2e63a867898739aa6807f04f393a221885bb0a071a7d4de03b56c8"
+dependencies = [
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4049,8 +4058,7 @@ checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
 [[package]]
 name = "sprinkles-rs"
 version = "0.21.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88214fd624b405cb9905c6bb451fee9e23c7b245b8dd14bc3dc208dac3527a54"
+source = "git+https://github.com/winpax/sprinkles.git?branch=shim-code#cfbda95fb869a60a82833912122be01a474efd27"
 dependencies = [
  "base64",
  "blake3",
@@ -4079,6 +4087,7 @@ dependencies = [
  "rayon",
  "regex",
  "reqwest",
+ "scoop-shim",
  "semver",
  "serde",
  "serde_json",
