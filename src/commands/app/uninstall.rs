@@ -114,7 +114,7 @@ impl Args {
             return Ok(());
         }
 
-        if !check_for_permissions(&version_dir) {
+        if !has_permissions(&version_dir) {
             eprintln_red!(
                 "Access Denied: {}. Try again, or fix permissions on the directory",
                 version_dir.display(),
@@ -132,7 +132,7 @@ impl Args {
     }
 }
 
-fn check_for_permissions(path: impl AsRef<Path>) -> bool {
+fn has_permissions(path: impl AsRef<Path>) -> bool {
     let path = path.as_ref();
 
     let Ok(metadata) = path.metadata() else {
