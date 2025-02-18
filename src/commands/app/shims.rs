@@ -18,6 +18,12 @@ pub struct Args {
 impl super::Command for Args {
     async fn runner(self, ctx: &impl ScoopContext) -> anyhow::Result<()> {
         let handle = self.package.open_handle(ctx).await?;
+
+        let manifest = handle.local_manifest()?;
+        let install_config = manifest.install_config(self.arch);
+
+        dbg!(install_config.bin);
+
         let shims = handle
             .list_shims(self.arch)?
             .into_iter()

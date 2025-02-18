@@ -6,7 +6,7 @@ use sprinkles::{
     contexts::ScoopContext,
     packages::{
         Manifest, MergeDefaults,
-        models::manifest::{NestedArray, SingleOrArray, StringArray},
+        models::manifest::{NestedArray, StringArray},
         reference::package,
     },
 };
@@ -144,10 +144,7 @@ impl Args {
                     NestedArray::NestedArray(StringArray::Array(bins)) => bins.join(" | "),
                     NestedArray::AliasArray(bins) => bins
                         .into_iter()
-                        .map(|bin_alias| match bin_alias {
-                            SingleOrArray::Single(v) => v,
-                            SingleOrArray::Array(mut array) => array.remove(0),
-                        })
+                        .map(|mut bin_alias| bin_alias.remove(0))
                         .join(" | "),
                 }),
             notes: manifest
