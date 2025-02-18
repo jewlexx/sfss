@@ -6,6 +6,8 @@ pub mod home;
 pub mod info;
 pub mod list;
 pub mod purge;
+pub mod shims;
+pub mod uninstall;
 
 use clap::{Parser, Subcommand};
 
@@ -23,6 +25,7 @@ pub enum Commands {
     Info(info::Args),
     List(list::Args),
     Purge(purge::Args),
+    Shims(shims::Args),
 }
 
 impl Runnable for Commands {
@@ -39,6 +42,7 @@ impl Runnable for Commands {
             Commands::Info(args) => args.run(ctx).await,
             Commands::List(args) => args.run(ctx).await,
             Commands::Purge(args) => args.run(ctx).await,
+            Commands::Shims(args) => args.run(ctx).await,
         }
     }
 }

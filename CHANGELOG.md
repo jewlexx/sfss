@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `app cleanup` command for removing old versions and cache entries
+- Added `app shims` command for listing shims
 
 ### Changed
 

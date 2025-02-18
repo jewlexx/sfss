@@ -159,7 +159,7 @@ async fn main() -> anyhow::Result<()> {
 
     debug!("Running command: {:?}", args.command);
 
-    args.command.run(&ctx).await?;
+    Box::pin(args.command.run(&ctx)).await?;
 
     Ok(())
 }

@@ -7,8 +7,8 @@ use serde::Serialize;
 use sprinkles::{config, contexts::ScoopContext};
 use tokio::task::JoinSet;
 
-mod list;
-mod remove;
+pub mod list;
+pub mod remove;
 
 use crate::{abandon, commands::CommandRunner, wrappers::sizes::Size};
 

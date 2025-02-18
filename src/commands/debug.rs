@@ -4,10 +4,13 @@ use sprinkles::{config, contexts::ScoopContext};
 use super::{Command, CommandRunner, Runnable};
 
 mod save;
+pub mod sizes;
 
 #[derive(Debug, Clone, Subcommand)]
 pub enum Commands {
     Save(save::Args),
+    /// Show the size of each of the sfsu commands
+    Sizes(sizes::Args),
 }
 
 impl Runnable for Commands {
@@ -17,6 +20,7 @@ impl Runnable for Commands {
     ) -> anyhow::Result<()> {
         match self {
             Commands::Save(args) => args.run(ctx).await,
+            Commands::Sizes(args) => args.run(ctx).await,
         }
     }
 }
