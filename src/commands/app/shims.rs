@@ -1,4 +1,5 @@
 use clap::Parser;
+use itertools::Itertools;
 use sprinkles::{Architecture, contexts::ScoopContext, packages::reference::package};
 
 #[derive(Debug, Clone, Parser)]
@@ -17,15 +18,19 @@ pub struct Args {
 impl super::Command for Args {
     async fn runner(self, ctx: &impl ScoopContext) -> anyhow::Result<()> {
         let handle = self.package.open_handle(ctx).await?;
-        let shims = handle.list_shims(self.arch)?;
+        let shims = handle
+            .list_shims(self.arch)?
+            .into_iter()
+            .map(|shim| shim.path(ctx).display().to_string())
+            .collect_vec();
 
-        // if self.json {
-        //     println!("{}", serde_json::to_string(&shims)?);
-        // } else {
-        for shim in shims {
-            println!("{}", shim.path(ctx).display());
+        if self.json {
+            println!("{}", serde_json::to_string(&shims)?);
+        } else {
+            for path in shims {
+                println!("- {path}");
+            }
         }
-        // }
 
         Ok(())
     }
